@@ -1,0 +1,18 @@
+packageDir: deps/spiral/lib
+moduleDir: .
+packages:
+    |core-
+    spiral-
+modules:
+    shared
+    inline/
+        inline
+    markdown/
+        markdown
+    viewer/
+        viewer
+    tree/
+        tree
+    selftest/
+        selftest
+    dir_tree_html

@@ -1,0 +1,225 @@
+:< shared
+
+:= escape (text : string) : string = $'dtl_inline::dtl_escape(&*!text)'
+
+:= render_inline (text : string) : string = $'dtl_inline::dtl_render_inline(&*!text)'
+:~ ^ starts_at (line : string) (prefix : string) (i : i32) : bool =
+    ? i = (sm.length prefix : i32) ?> !+
+    |? i = (sm.length line : i32) ?> !-
+    |? (sm.index line i) = (sm.index prefix i) ?> starts_at line prefix (i + 1i32)
+    |: !-
+
+:= starts (line : string) (prefix : string) : bool = starts_at line prefix 0i32
+
+:~ ^ blank_from (line : string) (i : i32) : bool =
+    ? i = (sm.length line : i32) ?> !+
+    |? (sm.index line i) = (sm.index " " 0i32) ?> blank_from line (i + 1i32)
+    |: !-
+
+:~ ^ count_hashes (line : string) (i : i32) : i32 =
+    ? i = (sm.length line : i32) ?> i
+    |? (sm.index line i) = (sm.index "#" 0i32) ?> count_hashes line (i + 1i32)
+    |: i
+
+:~ ^ heading_level (line : string) : i32 =
+    := hashes = count_hashes line 0i32
+    ? hashes = 0i32 ?> 0i32
+    |? hashes > 6i32 ?> 0i32
+    |? hashes = (sm.length line : i32) ?> 0i32
+    |? (sm.index line hashes) = (sm.index " " 0i32) ?> hashes
+    |: 0i32
+
+:~ ^ lead_spaces (line : string) (i : i32) : i32 =
+    ? i = (sm.length line : i32) ?> i
+    |? (sm.index line i) = (sm.index " " 0i32) ?> lead_spaces line (i + 1i32)
+    |: i
+
+:~ ^ bullet_start (line : string) : i32 =
+    := lead = lead_spaces line 0i32
+    ? (lead + 2i32) > (sm.length line : i32) ?> -1i32
+    |? (sm.index line (lead + 1i32)) = (sm.index " " 0i32) ?>
+        ? (sm.index line lead) = (sm.index "-" 0i32) ?> lead + 2i32
+        |? (sm.index line lead) = (sm.index "*" 0i32) ?> lead + 2i32
+        |: -1i32
+    |: -1i32
+
+:~ ^ digits_end (line : string) (i : i32) : i32 =
+    ? i = (sm.length line : i32) ?> i
+    |? (sm.index line i) >= (sm.index "0" 0i32) && (sm.index line i) <= (sm.index "9" 0i32) ?> digits_end line (i + 1i32)
+    |: i
+
+:~ ^ ordered_start (line : string) : i32 =
+    := lead = lead_spaces line 0i32
+    := stop = digits_end line lead
+    ? stop = lead ?> -1i32
+    |? (stop + 2i32) > (sm.length line : i32) ?> -1i32
+    |? (sm.index line stop) = (sm.index "." 0i32) && (sm.index line (stop + 1i32)) = (sm.index " " 0i32) ?> stop + 2i32
+    |: -1i32
+
+:~ ^ ordered_open (line : string) : string =
+    := lead = lead_spaces line 0i32
+    := number = copied_run line lead (digits_end line lead)
+    ? number = "1" ?> "<ol>\n" |: "<ol start=\"" ++ number ++ "\">\n"
+
+:~ ^ trail_end (text : string) (i : i32) : i32 =
+    ? i = 0i32 ?> 0i32
+    |? (sm.index text (i - 1i32)) = (sm.index " " 0i32) ?> trail_end text (i - 1i32)
+    |: i
+
+:~ ^ trimmed (text : string) : string =
+    := lead = lead_spaces text 0i32
+    copied_run text lead (trail_end text (sm.length text : i32))
+
+:~ ^ table_row (line : string) : bool =
+    := lead = lead_spaces line 0i32
+    ? lead = (sm.length line : i32) ?> !- |: (sm.index line lead) = (sm.index "|" 0i32)
+
+:~ ^ delimiter_chars (line : string) (i : i32) (dash : bool) : bool =
+    ? i = (sm.length line : i32) ?> dash
+    |:
+        := ch = sm.index line i
+        ? ch = (sm.index "-" 0i32) ?> delimiter_chars line (i + 1i32) !+
+        |? ch = (sm.index "|" 0i32) || ch = (sm.index ":" 0i32) || ch = (sm.index " " 0i32) ?>
+            delimiter_chars line (i + 1i32) dash
+        |: !-
+
+:~ ^ delimiter_row (line : string) : bool = table_row line && delimiter_chars line 0i32 !-
+
+:~ ^ cell_end (row : string) (i : i32) : i32 =
+    ? i = (sm.length row : i32) ?> i
+    |? (sm.index row i) = (sm.index "\\" 0i32) && (i + 1i32) < (sm.length row : i32) ?> cell_end row (i + 2i32)
+    |? (sm.index row i) = (sm.index "|" 0i32) ?> i
+    |: cell_end row (i + 1i32)
+
+:~ ^ row_body (line : string) : string =
+    := text = trimmed line
+    copied_run text 1i32 (sm.length text : i32)
+
+:~ ^ nth_cell (row : string) (i : i32) (k : i32) : string =
+    ? i >= (sm.length row : i32) ?> ""
+    |:
+        := stop = cell_end row i
+        ? k = 0i32 ?> trimmed (copied_run row i stop) |: nth_cell row (stop + 1i32) (k - 1i32)
+
+:| cell_align =
+    | AlignNone
+    | AlignLeft
+    | AlignCenter
+    | AlignRight
+
+:~ ^ cell_align_of (spec : string) : cell_align =
+    := n = sm.length spec : i32
+    ? n = 0i32 ?> AlignNone
+    |:
+        := left = (sm.index spec 0i32) = (sm.index ":" 0i32)
+        := right = (sm.index spec (n - 1i32)) = (sm.index ":" 0i32)
+        ? left && right ?> AlignCenter
+        |? right ?> AlignRight
+        |? left ?> AlignLeft
+        |: AlignNone
+
+:~ ^ align_attr (align : cell_align) : string =
+    ?= align ?|
+    | AlignNone => ""
+    | AlignLeft => " style=\"text-align: left\""
+    | AlignCenter => " style=\"text-align: center\""
+    | AlignRight => " style=\"text-align: right\""
+
+:~ ^ row_cells (row : string) (delimiters : string) (tag : string) (i : i32) (k : i32) (acc : string) : string =
+    := n = sm.length row : i32
+    ? i >= n ?> acc
+    |:
+        := stop = cell_end row i
+        := cell = trimmed (copied_run row i stop)
+        ? stop = n && cell = "" ?> acc
+        |:
+            := attr = align_attr (cell_align_of (nth_cell delimiters 0i32 k))
+            := html = "<" ++ tag ++ attr ++ ">" ++ render_inline cell ++ "</" ++ tag ++ ">"
+            row_cells row delimiters tag (stop + 1i32) (k + 1i32) (acc ++ html)
+
+:~ ^ table_tr (line : string) (delimiters : string) (tag : string) : string =
+    "<tr>" ++ row_cells (row_body line) (row_body delimiters) tag 0i32 0i32 "" ++ "</tr>\n"
+
+:| md_block =
+    | MdNone
+    | MdParagraph
+    | MdList
+    | MdOrdered
+    | MdCode
+    | MdTable : string
+
+:~ ^ close_block (block : md_block) : string =
+    ?= block ?|
+    | MdNone => ""
+    | MdParagraph => "</p>\n"
+    | MdList => "</li>\n</ul>\n"
+    | MdOrdered => "</li>\n</ol>\n"
+    | MdCode => "</code></pre>\n"
+    | MdTable _ => "</tbody>\n</table>\n"
+
+:~ ^ line_at (text : string) (at : i32) : string =
+    ? at > (sm.length text : i32) ?> "" |: sm.slice text { from = at; to = find_nl text at - 1i32 }
+
+:~ ^ markdown_lines (text : string) (at : i32) (block : md_block) (acc : string) : string =
+    := n = sm.length text : i32
+    ? at > n
+    ?> acc ++ close_block block
+    |:
+        := nl = find_nl text at
+        := line = sm.slice text { from = at; to = nl - 1i32 }
+        := next = nl + 1i32
+        ?= block ?|
+        | MdCode =>
+            ? starts line "```" ?> markdown_lines text next MdNone (acc ++ "</code></pre>\n")
+            |: markdown_lines text next MdCode (acc ++ escape line ++ "\n")
+        | MdTable delimiters =>
+            ? table_row line ?> markdown_lines text next block (acc ++ table_tr line delimiters "td")
+            |: markdown_lines text at MdNone (acc ++ close_block block)
+        | _ =>
+            := level = heading_level line
+            ? starts line "```"
+            ?> markdown_lines text next MdCode (acc ++ close_block block ++ "<pre><code>")
+            |? blank_from line 0i32
+            ?> markdown_lines text next MdNone (acc ++ close_block block)
+            |? level > 0i32
+            ?>
+                := tag =
+                    ? level = 1i32 ?> "h1"
+                    |? level = 2i32 ?> "h2"
+                    |? level = 3i32 ?> "h3"
+                    |? level = 4i32 ?> "h4"
+                    |? level = 5i32 ?> "h5"
+                    |: "h6"
+                := title = sm.slice line { from = level + 1i32; to = (sm.length line : i32) - 1i32 }
+                markdown_lines text next MdNone (
+                    acc ++ close_block block ++ "<" ++ tag ++ ">" ++ render_inline title ++ "</" ++ tag ++ ">\n"
+                )
+            |? line = "---"
+            ?> markdown_lines text next MdNone (acc ++ close_block block ++ "<hr>\n")
+            |? table_row line && delimiter_row (line_at text next)
+            ?>
+                := delimiters = line_at text next
+                := head = "<table>\n<thead>\n" ++ table_tr line delimiters "th" ++ "</thead>\n<tbody>\n"
+                markdown_lines text (find_nl text next + 1i32) (MdTable delimiters) (acc ++ close_block block ++ head)
+            |? (bullet_start line) > 0i32
+            ?>
+                := item = "<li>" ++ render_inline (copied_run line (bullet_start line) (sm.length line : i32))
+                ?= block ?|
+                | MdList => markdown_lines text next MdList (acc ++ "</li>\n" ++ item)
+                | _ => markdown_lines text next MdList (acc ++ close_block block ++ "<ul>\n" ++ item)
+            |? (ordered_start line) > 0i32
+            ?>
+                := item = "<li>" ++ render_inline (copied_run line (ordered_start line) (sm.length line : i32))
+                ?= block ?|
+                | MdOrdered => markdown_lines text next MdOrdered (acc ++ "</li>\n" ++ item)
+                | _ => markdown_lines text next MdOrdered (acc ++ close_block block ++ ordered_open line ++ item)
+            |:
+                ?= block ?|
+                | MdParagraph => markdown_lines text next MdParagraph (acc ++ " " ++ render_inline line)
+                | MdList => markdown_lines text next MdList (acc ++ " " ++ render_inline (trimmed line))
+                | MdOrdered => markdown_lines text next MdOrdered (acc ++ " " ++ render_inline (trimmed line))
+                | _ => markdown_lines text next MdParagraph (acc ++ close_block block ++ "<p>" ++ render_inline line)
+
+:= main () : i32 =
+    export "dtl_markdown" ((\ text => markdown_lines text 0i32 MdNone "") : string -> string)
+    0i32
