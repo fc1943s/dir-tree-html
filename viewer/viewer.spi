@@ -1,0 +1,115 @@
+:< shared
+
+:| viewer =
+    | Direct
+    | SourceView
+    | TableView
+    | MarkdownView
+
+:~ ^ last_dot (name : string) (i : i32) (found : i32) : i32 =
+    ? i = (sm.length name : i32) ?> found
+    |? (sm.index name i) = (sm.index "." 0i32) ?> last_dot name (i + 1i32) i
+    |: last_dot name (i + 1i32) found
+
+:~ ^ extension (name : string) : string =
+    := dot = last_dot name 0i32 -1i32
+    ? dot <= 0i32 ?> "" |: copied_run name (dot + 1i32) (sm.length name : i32)
+
+:~ ^ source_extension (ext : string) : bool =
+    ext = "spi" || ext = "spir" || ext = "spiproj" || ext = "toml" || ext = "ps1" || ext = "psm1" || ext = "fs"
+    || ext = "fsx" || ext = "fsproj" || ext = "rs" || ext = "gleam" || ext = "ex" || ext = "exs" || ext = "zig"
+    || ext = "c" || ext = "h" || ext = "cpp" || ext = "cs" || ext = "py" || ext = "sh" || ext = "cmd" || ext = "bat"
+    || ext = "lock" || ext = "cfg" || ext = "ini" || ext = "sql" || ext = "csv" || ext = "dib" || ext = "livemd"
+
+:~ ^ viewer_of (name : string) : viewer =
+    := ext = extension name
+    ? ext = "tsv" ?> TableView
+    |? ext = "md" ?> MarkdownView
+    |? source_extension ext ?> SourceView
+    |: Direct
+
+:= escape (text : string) : string = $'dtl_inline::dtl_escape(&*!text)'
+
+:~ ^ find_tab (line : string) (at : i32) : i32 =
+    ? at = (sm.length line : i32) ?> at
+    |? (sm.index line at) = (sm.index "\t" 0i32) ?> at
+    |: find_tab line (at + 1i32)
+
+:~ ^ tsv_cells (line : string) (at : i32) (tag : string) (acc : string) : string =
+    ? at > (sm.length line : i32) ?> acc
+    |:
+        := stop = find_tab line at
+        := cell = "<" ++ tag ++ ">" ++ escape (copied_run line at stop) ++ "</" ++ tag ++ ">"
+        tsv_cells line (stop + 1i32) tag (acc ++ cell)
+
+:~ ^ tsv_rows (text : string) (at : i32) (first : bool) (acc : string) : string =
+    ? at > (sm.length text : i32) ?> acc
+    |:
+        := stop = find_nl text at
+        := line = copied_run text at stop
+        ? line = "" ?> tsv_rows text (stop + 1i32) first acc
+        |:
+            := tag = ? first ?> "th" |: "td"
+            tsv_rows text (stop + 1i32) !- (acc ++ "<tr>" ++ tsv_cells line 0i32 tag "" ++ "</tr>\n")
+
+:~ ^ viewer_body (kind : viewer) (text : string) : string =
+    ?= kind ?|
+    | Direct => ""
+    | SourceView => "<pre><code>" ++ escape text ++ "</code></pre>\n"
+    | TableView => "<table>\n" ++ tsv_rows text 0i32 !+ "" ++ "</table>\n"
+    | MarkdownView => "<section class=\"readme\">\n" ++ markdown text ++ "</section>\n"
+
+:~ ^ viewer_page (name : string) (body : string) : string =
+    doc_head () ++ "<p><a href=\"" ++ name ++ "\">" ++ escape name ++ "</a> <span>raw</span></p>\n" ++ body ++ doc_close ""
+
+:~ ^ put (path : string) (text : string) : i32 = host_write path text
+
+:~ ^ slurp (path : string) : string = read_lines_text path
+
+:~ ^ present (path : string) : bool = host_is_file path
+
+:~ ^ leaf_name (path : string) (i : i32) (start : i32) : string =
+    ? i = (sm.length path : i32) ?> copied_run path start i
+    |? (sm.index path i) = (sm.index "/" 0i32) || (sm.index path i) = (sm.index "\\" 0i32) ?> leaf_name path (i + 1i32) (i + 1i32)
+    |: leaf_name path (i + 1i32) start
+
+:= has_viewer (name : string) : bool =
+    ?= viewer_of name ?|
+    | Direct => !-
+    | _ => !+
+
+:= write_viewer (path : string) : i32 =
+    := name = leaf_name path 0i32 0i32
+    := kind = viewer_of name
+    ?= kind ?|
+    | Direct => 0i32
+    | _ =>
+        ? present (path ++ ".html") ?> 0i32
+        |: put (path ++ ".html") (viewer_page name (viewer_body kind (slurp path)))
+
+:~ ^ test_head (name : string) : string = doc_head () ++ "<p><a href=\"" ++ name ++ "\">" ++ name ++ "</a> <span>raw</span></p>\n"
+
+:~ ^ test_page (path : string) (want : string) : i32 =
+    ? slurp (path ++ ".html") = drop_final_newline want ?> 0i32 |: 1i32
+
+:= viewer_self_test () : i32 =
+    := dir = host_join (host_temp ()) (guid.new_raw_guid () |> guid.to_string)
+    := _ = host_mkdir dir
+    := spi = host_join dir "a.spi"
+    := tsv = host_join dir "b.tsv"
+    := txt = host_join dir "c.txt"
+    := _ = put spi "x < 1"
+    := _ = put tsv "h1\th2\nv1\tv2"
+    := _ = put txt "t"
+    := wrote = write_viewer spi + write_viewer tsv + write_viewer txt + write_viewer spi
+    := spi_ok = test_page spi (test_head "a.spi" ++ "<pre><code>x &lt; 1</code></pre>\n" ++ doc_close "")
+    := table = "<table>\n<tr><th>h1</th><th>h2</th></tr>\n<tr><td>v1</td><td>v2</td></tr>\n</table>\n"
+    := tsv_ok = test_page tsv (test_head "b.tsv" ++ table ++ doc_close "")
+    := txt_ok = ? present (txt ++ ".html") ?> 1i32 |: 0i32
+    wrote + spi_ok + tsv_ok + txt_ok
+
+:= main () : i32 =
+    export "dtl_has_viewer" ((\ name => has_viewer name) : string -> bool)
+    export "dtl_write_viewer" ((\ path => write_viewer path) : string -> i32)
+    export "dtl_viewer_self_test" ((\ seed => viewer_self_test ()) : i32 -> i32)
+    0i32

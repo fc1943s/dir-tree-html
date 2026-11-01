@@ -28,8 +28,20 @@ version = "0.0.1"
 dependencies = [
  "dtl_markdown",
  "dtl_tree",
+ "dtl_viewer",
 ]
 
 [[package]]
 name = "dtl_tree"
 version = "0.0.1"
+dependencies = [
+ "dtl_viewer",
+]
+
+[[package]]
+name = "dtl_viewer"
+version = "0.0.1"
+dependencies = [
+ "dtl_inline",
+ "dtl_markdown",
+]

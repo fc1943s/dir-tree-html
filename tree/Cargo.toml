@@ -12,3 +12,6 @@ output = "tree.rs"
 [lib]
 name = "dtl_tree"
 path = "tree.rs"
+
+[dependencies]
+dtl_viewer = { path = "../viewer" }

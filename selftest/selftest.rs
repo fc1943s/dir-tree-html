@@ -37,15 +37,15 @@ fn go_0(mut v0: i32, mut v1: u64, mut v2: Rc<str>) -> Rc<str> {
     }
 }
 fn times_2(mut v0: Rc<str>, mut v1: i64) -> Rc<str> {
-    let v2: bool = v1 <= 0i64;
+    let mut v2: bool = v1 <= 0i64;
     if v2 {
         let mut v3: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from(""); } LIT.with(|lit| lit.clone()) };
-        v3.clone()
+        v3
     } else {
         let v4: i64 = v1.wrapping_sub(1i64);
         let v5: Rc<str> = times_2(v0.clone(), v4);
         let v6: Rc<str> = Rc::<str>::from(format!("{}{}", v0, v5));
-        v6.clone()
+        v6
     }
 }
 fn last_sep_3(mut v0: Rc<str>, mut v1: i32, mut v2: i32) -> i32 {
@@ -75,7 +75,7 @@ fn last_sep_3(mut v0: Rc<str>, mut v1: i32, mut v2: i32) -> i32 {
 }
 fn lay_1(mut v0: Rc<str>, mut v1: i64) -> i32 {
     loop {
-        let v2: bool = v1 < 0i64;
+        let mut v2: bool = v1 < 0i64;
         if v2 {
             return 0i32;
         } else {
@@ -194,12 +194,63 @@ fn lay_1(mut v0: Rc<str>, mut v1: i64) -> i32 {
         }
     }
 }
+fn same_4(mut v0: Rc<str>, mut v1: Rc<str>, mut v2: Rc<str>) -> i32 {
+    let mut v3: bool = &*v0 == &*v1;
+    if v3 {
+        0i32
+    } else {
+        let v5: Rc<str> = Rc::<str>::from(std::env::temp_dir().display().to_string());
+        let v7: Rc<str> = Rc::<str>::from(std::path::Path::new(v5.as_ref()).join(v2.as_ref()).display().to_string());
+        let v8: i32 = 0i32;
+        let v9: i32 = -1i32;
+        let v10: i32 = last_sep_3(v7.clone(), v8, v9);
+        let v11: bool = v10 == -1i32;
+        let v22: Rc<str> = if v11 {
+            let v12: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from(""); } LIT.with(|lit| lit.clone()) };
+            v12
+        } else {
+            let v13: i32 = v10.wrapping_sub(1i32);
+            let v14: Rc<str> = string_slice(&v7.clone(), 0i32 as i64, v13 as i64);
+            let v15: i32 = (v14.clone().len() as i32);
+            let v16: bool = v15 == 2i32;
+            let v19: bool = if v16 {
+                let v17: u8 = v14.clone().as_bytes()[1i32 as usize];
+                let v18: bool = v17 == b':';
+                v18
+            } else {
+                false
+            };
+            if v19 {
+                let v20: Rc<str> = string_slice(&v7.clone(), 0i32 as i64, v10 as i64);
+                v20
+            } else {
+                v14
+            }
+        };
+        let v23: i32 = (v22.clone().len() as i32);
+        let v24: bool = v23 == 0i32;
+        let v27: i32 = if v24 {
+            0i32
+        } else {
+            let v26: i32 = i32::from(std::fs::create_dir_all(v22.as_ref()).is_err());
+            v26
+        };
+        let v28: bool = v27 == 0i32;
+        let v31: i32 = if v28 {
+            let v30: i32 = i32::from(std::fs::write(v7.as_ref(), v0.as_ref().as_bytes()).is_err());
+            v30
+        } else {
+            v27
+        };
+        1i32
+    }
+}
 fn ok_c1() -> Rc<dyn Fn(Vec<u8>) -> US0> {
     thread_local!{ static CLOSURE: Rc<dyn Fn(Vec<u8>) -> US0> = Rc::new(move |mut v0: Vec<u8>| -> US0 {
         US0::US0_Ok(v0.clone())
     }); } CLOSURE.with(|closure| closure.clone())
 }
-fn method4() -> Rc<dyn Fn(Vec<u8>) -> US0> {
+fn method5() -> Rc<dyn Fn(Vec<u8>) -> US0> {
     ok_c1()
 }
 fn error_c2() -> Rc<dyn Fn(std::io::Error) -> US0> {
@@ -207,10 +258,10 @@ fn error_c2() -> Rc<dyn Fn(std::io::Error) -> US0> {
         US0::US0_Error(v0)
     }); } CLOSURE.with(|closure| closure.clone())
 }
-fn method5() -> Rc<dyn Fn(std::io::Error) -> US0> {
+fn method6() -> Rc<dyn Fn(std::io::Error) -> US0> {
     error_c2()
 }
-fn method6(mut v0: Vec<u8>) -> Vec<u8> {
+fn method7(mut v0: Vec<u8>) -> Vec<u8> {
     v0
 }
 fn ok_c3() -> Rc<dyn Fn(std::string::String) -> US1> {
@@ -218,7 +269,7 @@ fn ok_c3() -> Rc<dyn Fn(std::string::String) -> US1> {
         US1::US1_Ok(v0.clone())
     }); } CLOSURE.with(|closure| closure.clone())
 }
-fn method7() -> Rc<dyn Fn(std::string::String) -> US1> {
+fn method8() -> Rc<dyn Fn(std::string::String) -> US1> {
     ok_c3()
 }
 fn error_c4() -> Rc<dyn Fn(std::string::FromUtf8Error) -> US1> {
@@ -226,12 +277,210 @@ fn error_c4() -> Rc<dyn Fn(std::string::FromUtf8Error) -> US1> {
         US1::US1_Error(v0.clone())
     }); } CLOSURE.with(|closure| closure.clone())
 }
-fn method8() -> Rc<dyn Fn(std::string::FromUtf8Error) -> US1> {
+fn method9() -> Rc<dyn Fn(std::string::FromUtf8Error) -> US1> {
     error_c4()
+}
+fn viewers_test_10() -> i32 {
+    let v1: Rc<str> = Rc::<str>::from(std::env::temp_dir().display().to_string());
+    let mut v2: std::collections::hash_map::DefaultHasher = std::hash::BuildHasher::build_hasher(&std::collections::hash_map::RandomState::new());
+    let v4: bool = true; // 1;
+    let mut v2 = v2;
+    let v6: u128 = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_nanos();
+    std::hash::Hasher::write_u128(&mut v2, v6);
+    let v7: u64 = std::hash::Hasher::finish(&v2);
+    std::hash::Hasher::write_u64(&mut v2, v7);
+    let v8: u64 = std::hash::Hasher::finish(&v2);
+    let v9: u64 = v7 & 4294967295u64;
+    let v10: i32 = 8i32;
+    let v11: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from(""); } LIT.with(|lit| lit.clone()) };
+    let v12: Rc<str> = go_0(v10, v9, v11.clone());
+    let v13: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("-"); } LIT.with(|lit| lit.clone()) };
+    let v14: Rc<str> = Rc::<str>::from(format!("{}{}", v12, v13));
+    let v15: u64 = v7.wrapping_shr((32i32) as u32);
+    let v16: u64 = v15 & 65535u64;
+    let v17: i32 = 4i32;
+    let v18: Rc<str> = go_0(v17, v16, v11.clone());
+    let v19: Rc<str> = Rc::<str>::from(format!("{}{}", v14, v18));
+    let v20: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("-4"); } LIT.with(|lit| lit.clone()) };
+    let v21: Rc<str> = Rc::<str>::from(format!("{}{}", v19, v20));
+    let v22: u64 = v7.wrapping_shr((48i32) as u32);
+    let v23: u64 = v22 & 4095u64;
+    let v24: i32 = 3i32;
+    let v25: Rc<str> = go_0(v24, v23, v11.clone());
+    let v27: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v21, v25)), v13));
+    let v28: u64 = v8 & 16383u64;
+    let v29: u64 = v28 | 32768u64;
+    let v30: i32 = 4i32;
+    let v31: Rc<str> = go_0(v30, v29, v11.clone());
+    let v33: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v27, v31)), v13));
+    let v34: u64 = v8.wrapping_shr((16i32) as u32);
+    let v35: u64 = v34 & 281474976710655u64;
+    let v36: i32 = 12i32;
+    let v37: Rc<str> = go_0(v36, v35, v11.clone());
+    let v38: Rc<str> = Rc::<str>::from(format!("{}{}", v33, v37));
+    let v39: Rc<str> = Rc::<str>::from(v38.to_lowercase());
+    let v40: Rc<str> = v39 ;
+    let v42: Rc<str> = Rc::<str>::from(std::path::Path::new(v1.as_ref()).join(v40.as_ref()).display().to_string());
+    let v44: i32 = i32::from(std::fs::create_dir_all(v42.as_ref()).is_err());
+    let v46: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("a.spi"); } LIT.with(|lit| lit.clone()) };
+    let v47: Rc<str> = Rc::<str>::from(std::path::Path::new(v42.as_ref()).join(v46.as_ref()).display().to_string());
+    let v48: i32 = 0i32;
+    let v49: i32 = -1i32;
+    let v50: i32 = last_sep_3(v47.clone(), v48, v49);
+    let v51: bool = v50 == -1i32;
+    let v61: Rc<str> = if v51 {
+        v11.clone()
+    } else {
+        let v52: i32 = v50.wrapping_sub(1i32);
+        let v53: Rc<str> = string_slice(&v47.clone(), 0i32 as i64, v52 as i64);
+        let v54: i32 = (v53.clone().len() as i32);
+        let v55: bool = v54 == 2i32;
+        let v58: bool = if v55 {
+            let v56: u8 = v53.clone().as_bytes()[1i32 as usize];
+            let v57: bool = v56 == b':';
+            v57
+        } else {
+            false
+        };
+        if v58 {
+            let v59: Rc<str> = string_slice(&v47.clone(), 0i32 as i64, v50 as i64);
+            v59
+        } else {
+            v53
+        }
+    };
+    let v62: i32 = (v61.clone().len() as i32);
+    let v63: bool = v62 == 0i32;
+    let v66: i32 = if v63 {
+        0i32
+    } else {
+        let v65: i32 = i32::from(std::fs::create_dir_all(v61.as_ref()).is_err());
+        v65
+    };
+    let v67: bool = v66 == 0i32;
+    let v71: i32 = if v67 {
+        let mut v69: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("x < 1"); } LIT.with(|lit| lit.clone()) };
+        let v70: i32 = i32::from(std::fs::write(v47.as_ref(), v69.as_ref().as_bytes()).is_err());
+        v70
+    } else {
+        v66
+    };
+    let v73: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("b.tsv"); } LIT.with(|lit| lit.clone()) };
+    let v74: Rc<str> = Rc::<str>::from(std::path::Path::new(v42.as_ref()).join(v73.as_ref()).display().to_string());
+    let v75: i32 = 0i32;
+    let v76: i32 = -1i32;
+    let v77: i32 = last_sep_3(v74.clone(), v75, v76);
+    let v78: bool = v77 == -1i32;
+    let v88: Rc<str> = if v78 {
+        v11.clone()
+    } else {
+        let v79: i32 = v77.wrapping_sub(1i32);
+        let v80: Rc<str> = string_slice(&v74.clone(), 0i32 as i64, v79 as i64);
+        let v81: i32 = (v80.clone().len() as i32);
+        let v82: bool = v81 == 2i32;
+        let v85: bool = if v82 {
+            let v83: u8 = v80.clone().as_bytes()[1i32 as usize];
+            let v84: bool = v83 == b':';
+            v84
+        } else {
+            false
+        };
+        if v85 {
+            let v86: Rc<str> = string_slice(&v74.clone(), 0i32 as i64, v77 as i64);
+            v86
+        } else {
+            v80
+        }
+    };
+    let v89: i32 = (v88.clone().len() as i32);
+    let v90: bool = v89 == 0i32;
+    let v93: i32 = if v90 {
+        0i32
+    } else {
+        let v92: i32 = i32::from(std::fs::create_dir_all(v88.as_ref()).is_err());
+        v92
+    };
+    let v94: bool = v93 == 0i32;
+    let v98: i32 = if v94 {
+        let v96: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("h1\th2\nv1\tv2"); } LIT.with(|lit| lit.clone()) };
+        let v97: i32 = i32::from(std::fs::write(v74.as_ref(), v96.as_ref().as_bytes()).is_err());
+        v97
+    } else {
+        v93
+    };
+    let v100: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("c.txt"); } LIT.with(|lit| lit.clone()) };
+    let v101: Rc<str> = Rc::<str>::from(std::path::Path::new(v42.as_ref()).join(v100.as_ref()).display().to_string());
+    let v102: i32 = 0i32;
+    let v103: i32 = -1i32;
+    let v104: i32 = last_sep_3(v101.clone(), v102, v103);
+    let v105: bool = v104 == -1i32;
+    let v115: Rc<str> = if v105 {
+        v11
+    } else {
+        let v106: i32 = v104.wrapping_sub(1i32);
+        let v107: Rc<str> = string_slice(&v101.clone(), 0i32 as i64, v106 as i64);
+        let v108: i32 = (v107.clone().len() as i32);
+        let v109: bool = v108 == 2i32;
+        let v112: bool = if v109 {
+            let v110: u8 = v107.clone().as_bytes()[1i32 as usize];
+            let v111: bool = v110 == b':';
+            v111
+        } else {
+            false
+        };
+        if v112 {
+            let v113: Rc<str> = string_slice(&v101.clone(), 0i32 as i64, v104 as i64);
+            v113
+        } else {
+            v107
+        }
+    };
+    let v116: i32 = (v115.clone().len() as i32);
+    let v117: bool = v116 == 0i32;
+    let v120: i32 = if v117 {
+        0i32
+    } else {
+        let v119: i32 = i32::from(std::fs::create_dir_all(v115.as_ref()).is_err());
+        v119
+    };
+    let v121: bool = v120 == 0i32;
+    let v125: i32 = if v121 {
+        let v123: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("t"); } LIT.with(|lit| lit.clone()) };
+        let v124: i32 = i32::from(std::fs::write(v101.as_ref(), v123.as_ref().as_bytes()).is_err());
+        v124
+    } else {
+        v120
+    };
+    let v126: Rc<str> = dtl_tree::dtl_tree_html_viewers(&*v42);
+    let v127: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("<div>&#128196; <a href=\"a.spi.html\">a.spi</a><span> (5.00 B)</span> <a href=\"a.spi\"><span>raw</span></a></div><div>&#128196; <a href=\"b.tsv.html\">b.tsv</a><span> (11.00 B)</span> <a href=\"b.tsv\"><span>raw</span></a></div><div>&#128196; <a href=\"c.txt\">c.txt</a><span> (1.00 B)</span></div>"); } LIT.with(|lit| lit.clone()) };
+    let v128: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("dir-tree-html-viewers-got.html"); } LIT.with(|lit| lit.clone()) };
+    let v129: i32 = same_4(v126, v127, v128);
+    let v130: i32 = dtl_tree::dtl_write_viewers(&*v42);
+    let v132: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("a.spi.html"); } LIT.with(|lit| lit.clone()) };
+    let v133: Rc<str> = Rc::<str>::from(std::path::Path::new(v42.as_ref()).join(v132.as_ref()).display().to_string());
+    let v135: bool = std::path::Path::new(v133.as_ref()).is_file();
+    let v141: bool = if v135 {
+        let v137: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("b.tsv.html"); } LIT.with(|lit| lit.clone()) };
+        let v138: Rc<str> = Rc::<str>::from(std::path::Path::new(v42.as_ref()).join(v137.as_ref()).display().to_string());
+        let v140: bool = std::path::Path::new(v138.as_ref()).is_file();
+        v140
+    } else {
+        false
+    };
+    let v142: i32 = if v141 {
+        0i32
+    } else {
+        1i32
+    };
+    let v143: i32 = v129.wrapping_add(v130);
+    let v144: i32 = v143.wrapping_add(v142);
+    let v145: i32 = dtl_viewer::dtl_viewer_self_test(0i32);
+    let v146: i32 = v144.wrapping_add(v145);
+    v146
 }
 fn closure0() -> Rc<dyn Fn(i32) -> i32> {
     thread_local!{ static CLOSURE: Rc<dyn Fn(i32) -> i32> = Rc::new(move |mut v0: i32| -> i32 {
-        let v2: Rc<str> = Rc::<str>::from(std::env::temp_dir().display().to_string());
+        let mut v2: Rc<str> = Rc::<str>::from(std::env::temp_dir().display().to_string());
         let mut v3: std::collections::hash_map::DefaultHasher = std::hash::BuildHasher::build_hasher(&std::collections::hash_map::RandomState::new());
         let v5: bool = true; // 1;
         let mut v3 = v3;
@@ -285,541 +534,355 @@ fn closure0() -> Rc<dyn Fn(i32) -> i32> {
         let v57: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("<details open=\"true\"><summary>&#128194; <a href=\"_.root\">_.root</a><span> (10.00 B)</span></summary><div><details open=\"true\"><summary>&#128194; <a href=\"_.root/3\">3</a><span> (6.00 B)</span></summary><div><details open=\"true\"><summary>&#128194; <a href=\"_.root/3/2\">2</a><span> (3.00 B)</span></summary><div><details open=\"true\"><summary>&#128194; <a href=\"_.root/3/2/1\">1</a><span> (1.00 B)</span></summary><div><div>&#128196; <a href=\"_.root/3/2/1/file.txt\">file.txt</a><span> (1.00 B)</span></div></div></details><div>&#128196; <a href=\"_.root/3/2/file.txt\">file.txt</a><span> (2.00 B)</span></div></div></details><div>&#128196; <a href=\"_.root/3/file.txt\">file.txt</a><span> (3.00 B)</span></div></div></details><div>&#128196; <a href=\"_.root/file.txt\">file.txt</a><span> (4.00 B)</span></div></div></details>"); } LIT.with(|lit| lit.clone()) };
         let v58: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <style>\nhtml {\n  -webkit-text-size-adjust: 100%;\n  text-size-adjust: 100%;\n}\nbody {\n    background-color: #222;\n    color: #ccc;\n    margin: 8px;\n    line-height: 1.6;\n    overflow-wrap: anywhere;\n}\na {\n  color: #777;\n  font-size: 15px;\n}\nspan {\n  font-size: 11px;\n}\ndiv > div {\n  padding-left: 10px;\n}\ndetails > div {\n  padding-left: 19px;\n}\n.readme {\n  border-top: 1px solid #444;\n  margin-top: 16px;\n  padding-top: 8px;\n  max-width: 900px;\n}\n.readme a {\n  color: #9ab;\n}\n.readme pre {\n  background-color: #1a1a1a;\n  padding: 8px;\n  overflow-x: auto;\n}\n@media (max-width: 600px) {\n  a {\n    font-size: 16px;\n  }\n  span {\n    font-size: 12px;\n  }\n  div > div {\n    padding-left: 4px;\n  }\n  details > div {\n    padding-left: 10px;\n  }\n}\n  </style>\n</head>\n<body>\n  <div><details open=\"true\"><summary>&#128194; <a href=\"_.root\">_.root</a><span> (10.00 B)</span></summary><div><details open=\"true\"><summary>&#128194; <a href=\"_.root/3\">3</a><span> (6.00 B)</span></summary><div><details open=\"true\"><summary>&#128194; <a href=\"_.root/3/2\">2</a><span> (3.00 B)</span></summary><div><details open=\"true\"><summary>&#128194; <a href=\"_.root/3/2/1\">1</a><span> (1.00 B)</span></summary><div><div>&#128196; <a href=\"_.root/3/2/1/file.txt\">file.txt</a><span> (1.00 B)</span></div></div></details><div>&#128196; <a href=\"_.root/3/2/file.txt\">file.txt</a><span> (2.00 B)</span></div></div></details><div>&#128196; <a href=\"_.root/3/file.txt\">file.txt</a><span> (3.00 B)</span></div></div></details><div>&#128196; <a href=\"_.root/file.txt\">file.txt</a><span> (4.00 B)</span></div></div></details>"); } LIT.with(|lit| lit.clone()) };
         let v61: Rc<str> = Rc::<str>::from(format!("{}{}", v58, Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v52, v12)), v54))));
-        let v62: bool = &*v56 == &*v61;
-        let v91: i32 = if v62 {
-            0i32
-        } else {
-            let v64: Rc<str> = Rc::<str>::from(std::env::temp_dir().display().to_string());
-            let v66: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("dir-tree-html-got.html"); } LIT.with(|lit| lit.clone()) };
-            let v67: Rc<str> = Rc::<str>::from(std::path::Path::new(v64.as_ref()).join(v66.as_ref()).display().to_string());
-            let v68: i32 = 0i32;
-            let v69: i32 = -1i32;
-            let v70: i32 = last_sep_3(v67.clone(), v68, v69);
-            let v71: bool = v70 == -1i32;
-            let v81: Rc<str> = if v71 {
-                v12.clone()
-            } else {
-                let v72: i32 = v70.wrapping_sub(1i32);
-                let v73: Rc<str> = string_slice(&v67.clone(), 0i32 as i64, v72 as i64);
-                let v74: i32 = (v73.clone().len() as i32);
-                let v75: bool = v74 == 2i32;
-                let v78: bool = if v75 {
-                    let v76: u8 = v73.clone().as_bytes()[1i32 as usize];
-                    let v77: bool = v76 == b':';
-                    v77
-                } else {
-                    false
-                };
-                if v78 {
-                    let v79: Rc<str> = string_slice(&v67.clone(), 0i32 as i64, v70 as i64);
-                    v79.clone()
-                } else {
-                    v73.clone()
-                }
-            };
-            let v82: i32 = (v81.clone().len() as i32);
-            let v83: bool = v82 == 0i32;
-            let v86: i32 = if v83 {
-                0i32
-            } else {
-                let v85: i32 = i32::from(std::fs::create_dir_all(v81.as_ref()).is_err());
-                v85
-            };
-            let v87: bool = v86 == 0i32;
-            let v90: i32 = if v87 {
-                let v89: i32 = i32::from(std::fs::write(v67.as_ref(), v56.as_ref().as_bytes()).is_err());
-                v89
-            } else {
-                v86
-            };
-            1i32
-        };
-        let v92: i64 = dtl_tree::dtl_tree_bytes(&*v43);
-        let v93: bool = v92 == 10i64;
-        let v94: i32 = if v93 {
+        let v62: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("dir-tree-html-got.html"); } LIT.with(|lit| lit.clone()) };
+        let v63: i32 = same_4(v56.clone(), v61.clone(), v62.clone());
+        let v64: i64 = dtl_tree::dtl_tree_bytes(&*v43);
+        let v65: bool = v64 == 10i64;
+        let v66: i32 = if v65 {
             0i32
         } else {
             3i32
         };
-        let v96: Rc<str> = Rc::<str>::from(std::env::temp_dir().display().to_string());
-        let mut v97: std::collections::hash_map::DefaultHasher = std::hash::BuildHasher::build_hasher(&std::collections::hash_map::RandomState::new());
-        let v99: bool = true; // 1;
-        let mut v97 = v97;
-        let v101: u128 = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_nanos();
-        std::hash::Hasher::write_u128(&mut v97, v101);
-        let v102: u64 = std::hash::Hasher::finish(&v97);
-        std::hash::Hasher::write_u64(&mut v97, v102);
-        let v103: u64 = std::hash::Hasher::finish(&v97);
-        let v104: u64 = v102 & 4294967295u64;
-        let v105: i32 = 8i32;
-        let v106: Rc<str> = go_0(v105, v104, v12.clone());
-        let v107: Rc<str> = Rc::<str>::from(format!("{}{}", v106, v14));
-        let v108: u64 = v102.wrapping_shr((32i32) as u32);
-        let v109: u64 = v108 & 65535u64;
-        let v110: i32 = 4i32;
-        let v111: Rc<str> = go_0(v110, v109, v12.clone());
-        let v113: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v107, v111)), v21));
-        let v114: u64 = v102.wrapping_shr((48i32) as u32);
-        let v115: u64 = v114 & 4095u64;
-        let v116: i32 = 3i32;
-        let v117: Rc<str> = go_0(v116, v115, v12.clone());
-        let v119: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v113, v117)), v14));
-        let v120: u64 = v103 & 16383u64;
-        let v121: u64 = v120 | 32768u64;
-        let v122: i32 = 4i32;
-        let v123: Rc<str> = go_0(v122, v121, v12.clone());
-        let v125: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v119, v123)), v14));
-        let v126: u64 = v103.wrapping_shr((16i32) as u32);
-        let v127: u64 = v126 & 281474976710655u64;
-        let v128: i32 = 12i32;
-        let v129: Rc<str> = go_0(v128, v127, v12.clone());
-        let v130: Rc<str> = Rc::<str>::from(format!("{}{}", v125, v129));
-        let v131: Rc<str> = Rc::<str>::from(v130.to_lowercase());
-        let v132: Rc<str> = v131 ;
-        let v134: Rc<str> = Rc::<str>::from(std::path::Path::new(v96.as_ref()).join(v132.as_ref()).display().to_string());
-        let v136: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("m"); } LIT.with(|lit| lit.clone()) };
-        let v137: Rc<str> = Rc::<str>::from(std::path::Path::new(v134.as_ref()).join(v136.as_ref()).display().to_string());
-        let v139: i32 = i32::from(std::fs::create_dir_all(v137.as_ref()).is_err());
-        let v141: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("b.txt"); } LIT.with(|lit| lit.clone()) };
-        let v142: Rc<str> = Rc::<str>::from(std::path::Path::new(v134.as_ref()).join(v141.as_ref()).display().to_string());
-        let v143: i32 = 0i32;
-        let v144: i32 = -1i32;
-        let v145: i32 = last_sep_3(v142.clone(), v143, v144);
-        let v146: bool = v145 == -1i32;
-        let v156: Rc<str> = if v146 {
+        let v68: Rc<str> = Rc::<str>::from(std::env::temp_dir().display().to_string());
+        let mut v69: std::collections::hash_map::DefaultHasher = std::hash::BuildHasher::build_hasher(&std::collections::hash_map::RandomState::new());
+        let v71: bool = true; // 1;
+        let mut v69 = v69;
+        let v73: u128 = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_nanos();
+        std::hash::Hasher::write_u128(&mut v69, v73);
+        let v74: u64 = std::hash::Hasher::finish(&v69);
+        std::hash::Hasher::write_u64(&mut v69, v74);
+        let v75: u64 = std::hash::Hasher::finish(&v69);
+        let v76: u64 = v74 & 4294967295u64;
+        let v77: i32 = 8i32;
+        let v78: Rc<str> = go_0(v77, v76, v12.clone());
+        let v79: Rc<str> = Rc::<str>::from(format!("{}{}", v78, v14));
+        let v80: u64 = v74.wrapping_shr((32i32) as u32);
+        let v81: u64 = v80 & 65535u64;
+        let v82: i32 = 4i32;
+        let v83: Rc<str> = go_0(v82, v81, v12.clone());
+        let v85: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v79, v83)), v21));
+        let v86: u64 = v74.wrapping_shr((48i32) as u32);
+        let v87: u64 = v86 & 4095u64;
+        let v88: i32 = 3i32;
+        let v89: Rc<str> = go_0(v88, v87, v12.clone());
+        let v91: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v85, v89)), v14));
+        let v92: u64 = v75 & 16383u64;
+        let v93: u64 = v92 | 32768u64;
+        let v94: i32 = 4i32;
+        let v95: Rc<str> = go_0(v94, v93, v12.clone());
+        let v97: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v91, v95)), v14));
+        let v98: u64 = v75.wrapping_shr((16i32) as u32);
+        let v99: u64 = v98 & 281474976710655u64;
+        let v100: i32 = 12i32;
+        let v101: Rc<str> = go_0(v100, v99, v12.clone());
+        let v102: Rc<str> = Rc::<str>::from(format!("{}{}", v97, v101));
+        let v103: Rc<str> = Rc::<str>::from(v102.to_lowercase());
+        let v104: Rc<str> = v103 ;
+        let v106: Rc<str> = Rc::<str>::from(std::path::Path::new(v68.as_ref()).join(v104.as_ref()).display().to_string());
+        let v108: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("m"); } LIT.with(|lit| lit.clone()) };
+        let v109: Rc<str> = Rc::<str>::from(std::path::Path::new(v106.as_ref()).join(v108.as_ref()).display().to_string());
+        let v111: i32 = i32::from(std::fs::create_dir_all(v109.as_ref()).is_err());
+        let v113: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("b.txt"); } LIT.with(|lit| lit.clone()) };
+        let v114: Rc<str> = Rc::<str>::from(std::path::Path::new(v106.as_ref()).join(v113.as_ref()).display().to_string());
+        let v115: i32 = 0i32;
+        let v116: i32 = -1i32;
+        let v117: i32 = last_sep_3(v114.clone(), v115, v116);
+        let v118: bool = v117 == -1i32;
+        let v128: Rc<str> = if v118 {
             v12.clone()
         } else {
-            let v147: i32 = v145.wrapping_sub(1i32);
-            let v148: Rc<str> = string_slice(&v142.clone(), 0i32 as i64, v147 as i64);
-            let v149: i32 = (v148.clone().len() as i32);
-            let v150: bool = v149 == 2i32;
-            let v153: bool = if v150 {
-                let v151: u8 = v148.clone().as_bytes()[1i32 as usize];
-                let v152: bool = v151 == b':';
-                v152
+            let v119: i32 = v117.wrapping_sub(1i32);
+            let v120: Rc<str> = string_slice(&v114.clone(), 0i32 as i64, v119 as i64);
+            let v121: i32 = (v120.clone().len() as i32);
+            let v122: bool = v121 == 2i32;
+            let v125: bool = if v122 {
+                let v123: u8 = v120.clone().as_bytes()[1i32 as usize];
+                let v124: bool = v123 == b':';
+                v124
             } else {
                 false
             };
-            if v153 {
-                let v154: Rc<str> = string_slice(&v142.clone(), 0i32 as i64, v145 as i64);
-                v154.clone()
+            if v125 {
+                let v126: Rc<str> = string_slice(&v114.clone(), 0i32 as i64, v117 as i64);
+                v126.clone()
             } else {
-                v148.clone()
+                v120.clone()
             }
         };
-        let v157: i32 = (v156.clone().len() as i32);
-        let v158: bool = v157 == 0i32;
-        let v161: i32 = if v158 {
+        let v129: i32 = (v128.clone().len() as i32);
+        let v130: bool = v129 == 0i32;
+        let v133: i32 = if v130 {
             0i32
         } else {
-            let v160: i32 = i32::from(std::fs::create_dir_all(v156.as_ref()).is_err());
+            let v132: i32 = i32::from(std::fs::create_dir_all(v128.as_ref()).is_err());
+            v132
+        };
+        let v134: bool = v133 == 0i32;
+        let v138: i32 = if v134 {
+            let v136: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("x"); } LIT.with(|lit| lit.clone()) };
+            let v137: i32 = i32::from(std::fs::write(v114.as_ref(), v136.as_ref().as_bytes()).is_err());
+            v137
+        } else {
+            v133
+        };
+        let v140: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("a.txt"); } LIT.with(|lit| lit.clone()) };
+        let v141: Rc<str> = Rc::<str>::from(std::path::Path::new(v106.as_ref()).join(v140.as_ref()).display().to_string());
+        let v142: i32 = 0i32;
+        let v143: i32 = -1i32;
+        let v144: i32 = last_sep_3(v141.clone(), v142, v143);
+        let v145: bool = v144 == -1i32;
+        let v155: Rc<str> = if v145 {
+            v12.clone()
+        } else {
+            let v146: i32 = v144.wrapping_sub(1i32);
+            let v147: Rc<str> = string_slice(&v141.clone(), 0i32 as i64, v146 as i64);
+            let v148: i32 = (v147.clone().len() as i32);
+            let v149: bool = v148 == 2i32;
+            let v152: bool = if v149 {
+                let v150: u8 = v147.clone().as_bytes()[1i32 as usize];
+                let v151: bool = v150 == b':';
+                v151
+            } else {
+                false
+            };
+            if v152 {
+                let v153: Rc<str> = string_slice(&v141.clone(), 0i32 as i64, v144 as i64);
+                v153.clone()
+            } else {
+                v147.clone()
+            }
+        };
+        let v156: i32 = (v155.clone().len() as i32);
+        let v157: bool = v156 == 0i32;
+        let v160: i32 = if v157 {
+            0i32
+        } else {
+            let v159: i32 = i32::from(std::fs::create_dir_all(v155.as_ref()).is_err());
+            v159
+        };
+        let v161: bool = v160 == 0i32;
+        let v165: i32 = if v161 {
+            let v163: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("yy"); } LIT.with(|lit| lit.clone()) };
+            let v164: i32 = i32::from(std::fs::write(v141.as_ref(), v163.as_ref().as_bytes()).is_err());
+            v164
+        } else {
             v160
         };
-        let v162: bool = v161 == 0i32;
-        let v166: i32 = if v162 {
-            let v164: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("x"); } LIT.with(|lit| lit.clone()) };
-            let v165: i32 = i32::from(std::fs::write(v142.as_ref(), v164.as_ref().as_bytes()).is_err());
-            v165
-        } else {
-            v161
-        };
-        let v168: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("a.txt"); } LIT.with(|lit| lit.clone()) };
-        let v169: Rc<str> = Rc::<str>::from(std::path::Path::new(v134.as_ref()).join(v168.as_ref()).display().to_string());
-        let v170: i32 = 0i32;
-        let v171: i32 = -1i32;
-        let v172: i32 = last_sep_3(v169.clone(), v170, v171);
-        let v173: bool = v172 == -1i32;
-        let v183: Rc<str> = if v173 {
+        let v167: Rc<str> = Rc::<str>::from(std::path::Path::new(v106.as_ref()).join(v108.as_ref()).display().to_string());
+        let v169: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("file.txt"); } LIT.with(|lit| lit.clone()) };
+        let v170: Rc<str> = Rc::<str>::from(std::path::Path::new(v167.as_ref()).join(v169.as_ref()).display().to_string());
+        let v171: i32 = 0i32;
+        let v172: i32 = -1i32;
+        let v173: i32 = last_sep_3(v170.clone(), v171, v172);
+        let v174: bool = v173 == -1i32;
+        let v184: Rc<str> = if v174 {
             v12.clone()
         } else {
-            let v174: i32 = v172.wrapping_sub(1i32);
-            let v175: Rc<str> = string_slice(&v169.clone(), 0i32 as i64, v174 as i64);
-            let v176: i32 = (v175.clone().len() as i32);
-            let v177: bool = v176 == 2i32;
-            let v180: bool = if v177 {
-                let v178: u8 = v175.clone().as_bytes()[1i32 as usize];
-                let v179: bool = v178 == b':';
-                v179
+            let v175: i32 = v173.wrapping_sub(1i32);
+            let v176: Rc<str> = string_slice(&v170.clone(), 0i32 as i64, v175 as i64);
+            let v177: i32 = (v176.clone().len() as i32);
+            let v178: bool = v177 == 2i32;
+            let v181: bool = if v178 {
+                let v179: u8 = v176.clone().as_bytes()[1i32 as usize];
+                let v180: bool = v179 == b':';
+                v180
             } else {
                 false
             };
-            if v180 {
-                let v181: Rc<str> = string_slice(&v169.clone(), 0i32 as i64, v172 as i64);
-                v181.clone()
+            if v181 {
+                let v182: Rc<str> = string_slice(&v170.clone(), 0i32 as i64, v173 as i64);
+                v182.clone()
             } else {
-                v175.clone()
+                v176.clone()
             }
         };
-        let v184: i32 = (v183.clone().len() as i32);
-        let v185: bool = v184 == 0i32;
-        let v188: i32 = if v185 {
+        let v185: i32 = (v184.clone().len() as i32);
+        let v186: bool = v185 == 0i32;
+        let v189: i32 = if v186 {
             0i32
         } else {
-            let v187: i32 = i32::from(std::fs::create_dir_all(v183.as_ref()).is_err());
-            v187
-        };
-        let v189: bool = v188 == 0i32;
-        let v193: i32 = if v189 {
-            let v191: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("yy"); } LIT.with(|lit| lit.clone()) };
-            let v192: i32 = i32::from(std::fs::write(v169.as_ref(), v191.as_ref().as_bytes()).is_err());
-            v192
-        } else {
+            let v188: i32 = i32::from(std::fs::create_dir_all(v184.as_ref()).is_err());
             v188
         };
-        let v195: Rc<str> = Rc::<str>::from(std::path::Path::new(v134.as_ref()).join(v136.as_ref()).display().to_string());
-        let v197: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("file.txt"); } LIT.with(|lit| lit.clone()) };
-        let v198: Rc<str> = Rc::<str>::from(std::path::Path::new(v195.as_ref()).join(v197.as_ref()).display().to_string());
-        let v199: i32 = 0i32;
-        let v200: i32 = -1i32;
-        let v201: i32 = last_sep_3(v198.clone(), v199, v200);
-        let v202: bool = v201 == -1i32;
-        let v212: Rc<str> = if v202 {
+        let v190: bool = v189 == 0i32;
+        let v194: i32 = if v190 {
+            let v192: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("z"); } LIT.with(|lit| lit.clone()) };
+            let v193: i32 = i32::from(std::fs::write(v170.as_ref(), v192.as_ref().as_bytes()).is_err());
+            v193
+        } else {
+            v189
+        };
+        let v195: Rc<str> = dtl_tree::dtl_tree_html(&*v106);
+        let v196: Rc<str> = Rc::<str>::from(format!("{}{}", v50, v195));
+        let v199: Rc<str> = Rc::<str>::from(format!("{}{}", v196, Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v52, v12)), v54))));
+        let v200: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("<details open=\"true\"><summary>&#128194; <a href=\"m\">m</a><span> (1.00 B)</span></summary><div><div>&#128196; <a href=\"m/file.txt\">file.txt</a><span> (1.00 B)</span></div></div></details><div>&#128196; <a href=\"a.txt\">a.txt</a><span> (2.00 B)</span></div><div>&#128196; <a href=\"b.txt\">b.txt</a><span> (1.00 B)</span></div>"); } LIT.with(|lit| lit.clone()) };
+        let v201: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <style>\nhtml {\n  -webkit-text-size-adjust: 100%;\n  text-size-adjust: 100%;\n}\nbody {\n    background-color: #222;\n    color: #ccc;\n    margin: 8px;\n    line-height: 1.6;\n    overflow-wrap: anywhere;\n}\na {\n  color: #777;\n  font-size: 15px;\n}\nspan {\n  font-size: 11px;\n}\ndiv > div {\n  padding-left: 10px;\n}\ndetails > div {\n  padding-left: 19px;\n}\n.readme {\n  border-top: 1px solid #444;\n  margin-top: 16px;\n  padding-top: 8px;\n  max-width: 900px;\n}\n.readme a {\n  color: #9ab;\n}\n.readme pre {\n  background-color: #1a1a1a;\n  padding: 8px;\n  overflow-x: auto;\n}\n@media (max-width: 600px) {\n  a {\n    font-size: 16px;\n  }\n  span {\n    font-size: 12px;\n  }\n  div > div {\n    padding-left: 4px;\n  }\n  details > div {\n    padding-left: 10px;\n  }\n}\n  </style>\n</head>\n<body>\n  <div><details open=\"true\"><summary>&#128194; <a href=\"m\">m</a><span> (1.00 B)</span></summary><div><div>&#128196; <a href=\"m/file.txt\">file.txt</a><span> (1.00 B)</span></div></div></details><div>&#128196; <a href=\"a.txt\">a.txt</a><span> (2.00 B)</span></div><div>&#128196; <a href=\"b.txt\">b.txt</a><span> (1.00 B)</span></div>"); } LIT.with(|lit| lit.clone()) };
+        let v204: Rc<str> = Rc::<str>::from(format!("{}{}", v201, Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v52, v12)), v54))));
+        let v205: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("dir-tree-html-order-got.html"); } LIT.with(|lit| lit.clone()) };
+        let v206: i32 = same_4(v199.clone(), v204.clone(), v205.clone());
+        let v208: Rc<str> = Rc::<str>::from(std::env::temp_dir().display().to_string());
+        let mut v209: std::collections::hash_map::DefaultHasher = std::hash::BuildHasher::build_hasher(&std::collections::hash_map::RandomState::new());
+        let v211: bool = true; // 1;
+        let mut v209 = v209;
+        let v213: u128 = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_nanos();
+        std::hash::Hasher::write_u128(&mut v209, v213);
+        let v214: u64 = std::hash::Hasher::finish(&v209);
+        std::hash::Hasher::write_u64(&mut v209, v214);
+        let v215: u64 = std::hash::Hasher::finish(&v209);
+        let v216: u64 = v214 & 4294967295u64;
+        let v217: i32 = 8i32;
+        let v218: Rc<str> = go_0(v217, v216, v12.clone());
+        let v219: Rc<str> = Rc::<str>::from(format!("{}{}", v218, v14));
+        let v220: u64 = v214.wrapping_shr((32i32) as u32);
+        let v221: u64 = v220 & 65535u64;
+        let v222: i32 = 4i32;
+        let v223: Rc<str> = go_0(v222, v221, v12.clone());
+        let v225: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v219, v223)), v21));
+        let v226: u64 = v214.wrapping_shr((48i32) as u32);
+        let v227: u64 = v226 & 4095u64;
+        let v228: i32 = 3i32;
+        let v229: Rc<str> = go_0(v228, v227, v12.clone());
+        let v231: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v225, v229)), v14));
+        let v232: u64 = v215 & 16383u64;
+        let v233: u64 = v232 | 32768u64;
+        let v234: i32 = 4i32;
+        let v235: Rc<str> = go_0(v234, v233, v12.clone());
+        let v237: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v231, v235)), v14));
+        let v238: u64 = v215.wrapping_shr((16i32) as u32);
+        let v239: u64 = v238 & 281474976710655u64;
+        let v240: i32 = 12i32;
+        let v241: Rc<str> = go_0(v240, v239, v12.clone());
+        let v242: Rc<str> = Rc::<str>::from(format!("{}{}", v237, v241));
+        let v243: Rc<str> = Rc::<str>::from(v242.to_lowercase());
+        let v244: Rc<str> = v243 ;
+        let v246: Rc<str> = Rc::<str>::from(std::path::Path::new(v208.as_ref()).join(v244.as_ref()).display().to_string());
+        let v248: i32 = i32::from(std::fs::create_dir_all(v246.as_ref()).is_err());
+        let v250: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("README.md"); } LIT.with(|lit| lit.clone()) };
+        let v251: Rc<str> = Rc::<str>::from(std::path::Path::new(v246.as_ref()).join(v250.as_ref()).display().to_string());
+        let v252: i32 = 0i32;
+        let v253: i32 = -1i32;
+        let v254: i32 = last_sep_3(v251.clone(), v252, v253);
+        let v255: bool = v254 == -1i32;
+        let v265: Rc<str> = if v255 {
             v12.clone()
         } else {
-            let v203: i32 = v201.wrapping_sub(1i32);
-            let v204: Rc<str> = string_slice(&v198.clone(), 0i32 as i64, v203 as i64);
-            let v205: i32 = (v204.clone().len() as i32);
-            let v206: bool = v205 == 2i32;
-            let v209: bool = if v206 {
-                let v207: u8 = v204.clone().as_bytes()[1i32 as usize];
-                let v208: bool = v207 == b':';
-                v208
+            let v256: i32 = v254.wrapping_sub(1i32);
+            let v257: Rc<str> = string_slice(&v251.clone(), 0i32 as i64, v256 as i64);
+            let v258: i32 = (v257.clone().len() as i32);
+            let v259: bool = v258 == 2i32;
+            let v262: bool = if v259 {
+                let v260: u8 = v257.clone().as_bytes()[1i32 as usize];
+                let v261: bool = v260 == b':';
+                v261
             } else {
                 false
             };
-            if v209 {
-                let v210: Rc<str> = string_slice(&v198.clone(), 0i32 as i64, v201 as i64);
-                v210.clone()
+            if v262 {
+                let v263: Rc<str> = string_slice(&v251.clone(), 0i32 as i64, v254 as i64);
+                v263.clone()
             } else {
-                v204.clone()
+                v257.clone()
             }
         };
-        let v213: i32 = (v212.clone().len() as i32);
-        let v214: bool = v213 == 0i32;
-        let v217: i32 = if v214 {
+        let v266: i32 = (v265.clone().len() as i32);
+        let v267: bool = v266 == 0i32;
+        let v270: i32 = if v267 {
             0i32
         } else {
-            let v216: i32 = i32::from(std::fs::create_dir_all(v212.as_ref()).is_err());
-            v216
+            let v269: i32 = i32::from(std::fs::create_dir_all(v265.as_ref()).is_err());
+            v269
         };
-        let v218: bool = v217 == 0i32;
-        let v222: i32 = if v218 {
-            let v220: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("z"); } LIT.with(|lit| lit.clone()) };
-            let v221: i32 = i32::from(std::fs::write(v198.as_ref(), v220.as_ref().as_bytes()).is_err());
-            v221
+        let v271: bool = v270 == 0i32;
+        let v275: i32 = if v271 {
+            let v273: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("# Title\n\nSome `code` and [a link](x.html).\n\n- one\n- two <b>\n\n봉쥬르 & é [깃허브](k.html)\n\nHi! ![logo](logo.png) [![CI](b.svg)](ci.html)\n\n**Bold** and <https://x.org> and \\*star\\*\n\n---\n\n- top\n  - nested\n\n```\nlet x = 1 < 2\n```\n\n| A | B |\n| :- | -: |\n| `x` | y \\| z |\n\n3. three\n   wrapped\n4. four\n- lazy\nmore\n"); } LIT.with(|lit| lit.clone()) };
+            let v274: i32 = i32::from(std::fs::write(v251.as_ref(), v273.as_ref().as_bytes()).is_err());
+            v274
         } else {
-            v217
+            v270
         };
-        let v223: Rc<str> = dtl_tree::dtl_tree_html(&*v134);
-        let v224: Rc<str> = Rc::<str>::from(format!("{}{}", v50, v223));
-        let v227: Rc<str> = Rc::<str>::from(format!("{}{}", v224, Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v52, v12)), v54))));
-        let v228: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("<details open=\"true\"><summary>&#128194; <a href=\"m\">m</a><span> (1.00 B)</span></summary><div><div>&#128196; <a href=\"m/file.txt\">file.txt</a><span> (1.00 B)</span></div></div></details><div>&#128196; <a href=\"a.txt\">a.txt</a><span> (2.00 B)</span></div><div>&#128196; <a href=\"b.txt\">b.txt</a><span> (1.00 B)</span></div>"); } LIT.with(|lit| lit.clone()) };
-        let v229: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <style>\nhtml {\n  -webkit-text-size-adjust: 100%;\n  text-size-adjust: 100%;\n}\nbody {\n    background-color: #222;\n    color: #ccc;\n    margin: 8px;\n    line-height: 1.6;\n    overflow-wrap: anywhere;\n}\na {\n  color: #777;\n  font-size: 15px;\n}\nspan {\n  font-size: 11px;\n}\ndiv > div {\n  padding-left: 10px;\n}\ndetails > div {\n  padding-left: 19px;\n}\n.readme {\n  border-top: 1px solid #444;\n  margin-top: 16px;\n  padding-top: 8px;\n  max-width: 900px;\n}\n.readme a {\n  color: #9ab;\n}\n.readme pre {\n  background-color: #1a1a1a;\n  padding: 8px;\n  overflow-x: auto;\n}\n@media (max-width: 600px) {\n  a {\n    font-size: 16px;\n  }\n  span {\n    font-size: 12px;\n  }\n  div > div {\n    padding-left: 4px;\n  }\n  details > div {\n    padding-left: 10px;\n  }\n}\n  </style>\n</head>\n<body>\n  <div><details open=\"true\"><summary>&#128194; <a href=\"m\">m</a><span> (1.00 B)</span></summary><div><div>&#128196; <a href=\"m/file.txt\">file.txt</a><span> (1.00 B)</span></div></div></details><div>&#128196; <a href=\"a.txt\">a.txt</a><span> (2.00 B)</span></div><div>&#128196; <a href=\"b.txt\">b.txt</a><span> (1.00 B)</span></div>"); } LIT.with(|lit| lit.clone()) };
-        let v232: Rc<str> = Rc::<str>::from(format!("{}{}", v229, Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v52, v12)), v54))));
-        let v233: bool = &*v227 == &*v232;
-        let v262: i32 = if v233 {
-            0i32
-        } else {
-            let v235: Rc<str> = Rc::<str>::from(std::env::temp_dir().display().to_string());
-            let v237: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("dir-tree-html-order-got.html"); } LIT.with(|lit| lit.clone()) };
-            let v238: Rc<str> = Rc::<str>::from(std::path::Path::new(v235.as_ref()).join(v237.as_ref()).display().to_string());
-            let v239: i32 = 0i32;
-            let v240: i32 = -1i32;
-            let v241: i32 = last_sep_3(v238.clone(), v239, v240);
-            let v242: bool = v241 == -1i32;
-            let v252: Rc<str> = if v242 {
-                v12.clone()
-            } else {
-                let v243: i32 = v241.wrapping_sub(1i32);
-                let v244: Rc<str> = string_slice(&v238.clone(), 0i32 as i64, v243 as i64);
-                let v245: i32 = (v244.clone().len() as i32);
-                let v246: bool = v245 == 2i32;
-                let v249: bool = if v246 {
-                    let v247: u8 = v244.clone().as_bytes()[1i32 as usize];
-                    let v248: bool = v247 == b':';
-                    v248
-                } else {
-                    false
-                };
-                if v249 {
-                    let v250: Rc<str> = string_slice(&v238.clone(), 0i32 as i64, v241 as i64);
-                    v250.clone()
-                } else {
-                    v244.clone()
-                }
-            };
-            let v253: i32 = (v252.clone().len() as i32);
-            let v254: bool = v253 == 0i32;
-            let v257: i32 = if v254 {
-                0i32
-            } else {
-                let v256: i32 = i32::from(std::fs::create_dir_all(v252.as_ref()).is_err());
-                v256
-            };
-            let v258: bool = v257 == 0i32;
-            let v261: i32 = if v258 {
-                let v260: i32 = i32::from(std::fs::write(v238.as_ref(), v227.as_ref().as_bytes()).is_err());
-                v260
-            } else {
-                v257
-            };
-            1i32
-        };
-        let v264: Rc<str> = Rc::<str>::from(std::env::temp_dir().display().to_string());
-        let mut v265: std::collections::hash_map::DefaultHasher = std::hash::BuildHasher::build_hasher(&std::collections::hash_map::RandomState::new());
-        let v267: bool = true; // 1;
-        let mut v265 = v265;
-        let v269: u128 = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_nanos();
-        std::hash::Hasher::write_u128(&mut v265, v269);
-        let v270: u64 = std::hash::Hasher::finish(&v265);
-        std::hash::Hasher::write_u64(&mut v265, v270);
-        let v271: u64 = std::hash::Hasher::finish(&v265);
-        let v272: u64 = v270 & 4294967295u64;
-        let v273: i32 = 8i32;
-        let v274: Rc<str> = go_0(v273, v272, v12.clone());
-        let v275: Rc<str> = Rc::<str>::from(format!("{}{}", v274, v14));
-        let v276: u64 = v270.wrapping_shr((32i32) as u32);
-        let v277: u64 = v276 & 65535u64;
-        let v278: i32 = 4i32;
-        let v279: Rc<str> = go_0(v278, v277, v12.clone());
-        let v281: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v275, v279)), v21));
-        let v282: u64 = v270.wrapping_shr((48i32) as u32);
-        let v283: u64 = v282 & 4095u64;
-        let v284: i32 = 3i32;
-        let v285: Rc<str> = go_0(v284, v283, v12.clone());
-        let v287: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v281, v285)), v14));
-        let v288: u64 = v271 & 16383u64;
-        let v289: u64 = v288 | 32768u64;
-        let v290: i32 = 4i32;
-        let v291: Rc<str> = go_0(v290, v289, v12.clone());
-        let v293: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v287, v291)), v14));
-        let v294: u64 = v271.wrapping_shr((16i32) as u32);
-        let v295: u64 = v294 & 281474976710655u64;
-        let v296: i32 = 12i32;
-        let v297: Rc<str> = go_0(v296, v295, v12.clone());
-        let v298: Rc<str> = Rc::<str>::from(format!("{}{}", v293, v297));
-        let v299: Rc<str> = Rc::<str>::from(v298.to_lowercase());
-        let v300: Rc<str> = v299 ;
-        let v302: Rc<str> = Rc::<str>::from(std::path::Path::new(v264.as_ref()).join(v300.as_ref()).display().to_string());
-        let v304: i32 = i32::from(std::fs::create_dir_all(v302.as_ref()).is_err());
-        let v306: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("README.md"); } LIT.with(|lit| lit.clone()) };
-        let v307: Rc<str> = Rc::<str>::from(std::path::Path::new(v302.as_ref()).join(v306.as_ref()).display().to_string());
-        let v308: i32 = 0i32;
-        let v309: i32 = -1i32;
-        let v310: i32 = last_sep_3(v307.clone(), v308, v309);
-        let v311: bool = v310 == -1i32;
-        let v321: Rc<str> = if v311 {
-            v12.clone()
-        } else {
-            let v312: i32 = v310.wrapping_sub(1i32);
-            let v313: Rc<str> = string_slice(&v307.clone(), 0i32 as i64, v312 as i64);
-            let v314: i32 = (v313.clone().len() as i32);
-            let v315: bool = v314 == 2i32;
-            let v318: bool = if v315 {
-                let v316: u8 = v313.clone().as_bytes()[1i32 as usize];
-                let v317: bool = v316 == b':';
-                v317
-            } else {
-                false
-            };
-            if v318 {
-                let v319: Rc<str> = string_slice(&v307.clone(), 0i32 as i64, v310 as i64);
-                v319.clone()
-            } else {
-                v313.clone()
-            }
-        };
-        let v322: i32 = (v321.clone().len() as i32);
-        let v323: bool = v322 == 0i32;
-        let v326: i32 = if v323 {
-            0i32
-        } else {
-            let v325: i32 = i32::from(std::fs::create_dir_all(v321.as_ref()).is_err());
-            v325
-        };
-        let v327: bool = v326 == 0i32;
-        let v331: i32 = if v327 {
-            let v329: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("# Title\n\nSome `code` and [a link](x.html).\n\n- one\n- two <b>\n\n봉쥬르 & é [깃허브](k.html)\n\nHi! ![logo](logo.png) [![CI](b.svg)](ci.html)\n\n**Bold** and <https://x.org> and \\*star\\*\n\n---\n\n- top\n  - nested\n\n```\nlet x = 1 < 2\n```\n"); } LIT.with(|lit| lit.clone()) };
-            let v330: i32 = i32::from(std::fs::write(v307.as_ref(), v329.as_ref().as_bytes()).is_err());
-            v330
-        } else {
-            v326
-        };
-        let v333: Rc<str> = Rc::<str>::from(std::path::Path::new(v302.as_ref()).join(v306.as_ref()).display().to_string());
-        let v335: bool = std::path::Path::new(v333.as_ref()).is_file();
-        let v374: Rc<str> = if v335 {
-            let v337: Result<Vec<u8>, std::io::Error> = std::fs::read(&*v333);
-            let mut v338: Rc<dyn Fn(Vec<u8>) -> US0> = method4();
-            let mut v339: Rc<dyn Fn(std::io::Error) -> US0> = method5();
-            let v340: US0 = match v337 { Ok(x) => v338(x), Err(e) => v339(e) };
-            let v368: Rc<str> = match v340 {
-                US0::US0_Error(v341) => {
-                    let v341: std::io::Error = v341;
+        let v277: Rc<str> = Rc::<str>::from(std::path::Path::new(v246.as_ref()).join(v250.as_ref()).display().to_string());
+        let v279: bool = std::path::Path::new(v277.as_ref()).is_file();
+        let v318: Rc<str> = if v279 {
+            let v281: Result<Vec<u8>, std::io::Error> = std::fs::read(&*v277);
+            let mut v282: Rc<dyn Fn(Vec<u8>) -> US0> = method5();
+            let mut v283: Rc<dyn Fn(std::io::Error) -> US0> = method6();
+            let v284: US0 = match v281 { Ok(x) => v282(x), Err(e) => v283(e) };
+            let v312: Rc<str> = match v284 {
+                US0::US0_Error(v285) => {
+                    let v285: std::io::Error = v285;
                     v12.clone()
                 }
-                US0::US0_Ok(v342) => {
-                    let v342: Vec<u8> = v342.clone();
-                    let v343: Vec<u8> = method6(v342.clone());
-                    let v345: Result<std::string::String, std::string::FromUtf8Error> = std::string::String::from_utf8(v343);
-                    let mut v346: Rc<dyn Fn(std::string::String) -> US1> = method7();
-                    let mut v347: Rc<dyn Fn(std::string::FromUtf8Error) -> US1> = method8();
-                    let v348: US1 = match v345 { Ok(x) => v346(x), Err(e) => v347(e) };
-                    match &v348 {
-                        US1::US1_Error(v349) => {
-                            let v349: std::string::FromUtf8Error = v349.clone();
+                US0::US0_Ok(v286) => {
+                    let v286: Vec<u8> = v286.clone();
+                    let v287: Vec<u8> = method7(v286.clone());
+                    let v289: Result<std::string::String, std::string::FromUtf8Error> = std::string::String::from_utf8(v287);
+                    let mut v290: Rc<dyn Fn(std::string::String) -> US1> = method8();
+                    let mut v291: Rc<dyn Fn(std::string::FromUtf8Error) -> US1> = method9();
+                    let v292: US1 = match v289 { Ok(x) => v290(x), Err(e) => v291(e) };
+                    match &v292 {
+                        US1::US1_Error(v293) => {
+                            let v293: std::string::FromUtf8Error = v293.clone();
                             v12.clone()
                         }
-                        US1::US1_Ok(v350) => {
-                            let v350: std::string::String = v350.clone();
-                            let v352: Rc<str> = Rc::<str>::from(String::as_str(&v350));
-                            let v353: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("\r\n"); } LIT.with(|lit| lit.clone()) };
-                            let v354: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("\n"); } LIT.with(|lit| lit.clone()) };
-                            let v355: Rc<str> = Rc::<str>::from(v352.replace(&*v353, &*v354));
-                            let v356: bool = v355.ends_with(&*v354);
-                            let v359: bool = if v356 {
-                                let v357: i32 = (v355.clone().len() as i32);
-                                let v358: bool = v357 == 1i32;
-                                v358
+                        US1::US1_Ok(v294) => {
+                            let v294: std::string::String = v294.clone();
+                            let v296: Rc<str> = Rc::<str>::from(String::as_str(&v294));
+                            let v297: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("\r\n"); } LIT.with(|lit| lit.clone()) };
+                            let v298: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("\n"); } LIT.with(|lit| lit.clone()) };
+                            let v299: Rc<str> = Rc::<str>::from(v296.replace(&*v297, &*v298));
+                            let v300: bool = v299.ends_with(&*v298);
+                            let v303: bool = if v300 {
+                                let v301: i32 = (v299.clone().len() as i32);
+                                let v302: bool = v301 == 1i32;
+                                v302
                             } else {
                                 false
                             };
-                            if v359 {
+                            if v303 {
                                 v12.clone()
                             } else {
-                                if v356 {
-                                    let v360: i32 = (v355.clone().len() as i32);
-                                    let v361: i32 = v360.wrapping_sub(2i32);
-                                    let v362: Rc<str> = string_slice(&v355.clone(), 0i32 as i64, v361 as i64);
-                                    v362.clone()
+                                if v300 {
+                                    let v304: i32 = (v299.clone().len() as i32);
+                                    let v305: i32 = v304.wrapping_sub(2i32);
+                                    let v306: Rc<str> = string_slice(&v299.clone(), 0i32 as i64, v305 as i64);
+                                    v306.clone()
                                 } else {
-                                    v355.clone()
+                                    v299.clone()
                                 }
                             }
                         }
                     }
                 }
             };
-            let v369: Rc<str> = dtl_markdown::dtl_markdown(&*v368);
-            let v370: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("<section class=\"readme\">\n"); } LIT.with(|lit| lit.clone()) };
-            let v371: Rc<str> = Rc::<str>::from(format!("{}{}", v370, v369));
-            let v372: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("</section>\n"); } LIT.with(|lit| lit.clone()) };
-            let v373: Rc<str> = Rc::<str>::from(format!("{}{}", v371, v372));
-            v373.clone()
+            let v313: Rc<str> = dtl_markdown::dtl_markdown(&*v312);
+            let v314: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("<section class=\"readme\">\n"); } LIT.with(|lit| lit.clone()) };
+            let v315: Rc<str> = Rc::<str>::from(format!("{}{}", v314, v313));
+            let v316: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("</section>\n"); } LIT.with(|lit| lit.clone()) };
+            let v317: Rc<str> = Rc::<str>::from(format!("{}{}", v315, v316));
+            v317.clone()
         } else {
             v12.clone()
         };
-        let v375: bool = &*v374 == "<section class=\"readme\">\n<h1>Title</h1>\n<p>Some <code>code</code> and <a href=\"x.html\">a link</a>.</p>\n<ul>\n<li>one</li>\n<li>two &lt;b&gt;</li>\n</ul>\n<p>봉쥬르 &amp; é <a href=\"k.html\">깃허브</a></p>\n<p>Hi! <img src=\"logo.png\" alt=\"logo\"> <a href=\"ci.html\"><img src=\"b.svg\" alt=\"CI\"></a></p>\n<p><strong>Bold</strong> and <a href=\"https://x.org\">https://x.org</a> and *star*</p>\n<hr>\n<ul>\n<li>top</li>\n<li>nested</li>\n</ul>\n<pre><code>let x = 1 &lt; 2\n</code></pre>\n</section>\n";
-        let v404: i32 = if v375 {
-            0i32
-        } else {
-            let v377: Rc<str> = Rc::<str>::from(std::env::temp_dir().display().to_string());
-            let v379: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("dir-tree-html-readme-got.html"); } LIT.with(|lit| lit.clone()) };
-            let v380: Rc<str> = Rc::<str>::from(std::path::Path::new(v377.as_ref()).join(v379.as_ref()).display().to_string());
-            let v381: i32 = 0i32;
-            let v382: i32 = -1i32;
-            let v383: i32 = last_sep_3(v380.clone(), v381, v382);
-            let v384: bool = v383 == -1i32;
-            let v394: Rc<str> = if v384 {
-                v12.clone()
-            } else {
-                let v385: i32 = v383.wrapping_sub(1i32);
-                let v386: Rc<str> = string_slice(&v380.clone(), 0i32 as i64, v385 as i64);
-                let v387: i32 = (v386.clone().len() as i32);
-                let v388: bool = v387 == 2i32;
-                let v391: bool = if v388 {
-                    let v389: u8 = v386.clone().as_bytes()[1i32 as usize];
-                    let v390: bool = v389 == b':';
-                    v390
-                } else {
-                    false
-                };
-                if v391 {
-                    let v392: Rc<str> = string_slice(&v380.clone(), 0i32 as i64, v383 as i64);
-                    v392.clone()
-                } else {
-                    v386.clone()
-                }
-            };
-            let v395: i32 = (v394.clone().len() as i32);
-            let v396: bool = v395 == 0i32;
-            let v399: i32 = if v396 {
-                0i32
-            } else {
-                let v398: i32 = i32::from(std::fs::create_dir_all(v394.as_ref()).is_err());
-                v398
-            };
-            let v400: bool = v399 == 0i32;
-            let v403: i32 = if v400 {
-                let v402: i32 = i32::from(std::fs::write(v380.as_ref(), v374.as_ref().as_bytes()).is_err());
-                v402
-            } else {
-                v399
-            };
-            1i32
-        };
-        let v405: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("<p>r</p>\n"); } LIT.with(|lit| lit.clone()) };
-        let v407: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v52, v405)), v54));
-        let v408: bool = &*v407 == "</div>\n<p>r</p>\n</body>\n</html>\n";
-        let v437: i32 = if v408 {
-            0i32
-        } else {
-            let v410: Rc<str> = Rc::<str>::from(std::env::temp_dir().display().to_string());
-            let v412: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("dir-tree-html-close-got.html"); } LIT.with(|lit| lit.clone()) };
-            let v413: Rc<str> = Rc::<str>::from(std::path::Path::new(v410.as_ref()).join(v412.as_ref()).display().to_string());
-            let v414: i32 = 0i32;
-            let v415: i32 = -1i32;
-            let v416: i32 = last_sep_3(v413.clone(), v414, v415);
-            let v417: bool = v416 == -1i32;
-            let v427: Rc<str> = if v417 {
-                v12.clone()
-            } else {
-                let v418: i32 = v416.wrapping_sub(1i32);
-                let v419: Rc<str> = string_slice(&v413.clone(), 0i32 as i64, v418 as i64);
-                let v420: i32 = (v419.clone().len() as i32);
-                let v421: bool = v420 == 2i32;
-                let v424: bool = if v421 {
-                    let v422: u8 = v419.clone().as_bytes()[1i32 as usize];
-                    let v423: bool = v422 == b':';
-                    v423
-                } else {
-                    false
-                };
-                if v424 {
-                    let v425: Rc<str> = string_slice(&v413.clone(), 0i32 as i64, v416 as i64);
-                    v425.clone()
-                } else {
-                    v419.clone()
-                }
-            };
-            let v428: i32 = (v427.clone().len() as i32);
-            let v429: bool = v428 == 0i32;
-            let v432: i32 = if v429 {
-                0i32
-            } else {
-                let v431: i32 = i32::from(std::fs::create_dir_all(v427.as_ref()).is_err());
-                v431
-            };
-            let v433: bool = v432 == 0i32;
-            let v436: i32 = if v433 {
-                let v435: i32 = i32::from(std::fs::write(v413.as_ref(), v407.as_ref().as_bytes()).is_err());
-                v435
-            } else {
-                v432
-            };
-            1i32
-        };
-        let v438: Rc<str> = dtl_tree::dtl_size_label(1024i64);
-        let v439: bool = &*v438 == "1024.00 B";
-        let v449: i32 = if v439 {
-            let v440: Rc<str> = dtl_tree::dtl_size_label(1025i64);
-            let v441: bool = &*v440 == "1.00 KB";
-            if v441 {
-                let v442: Rc<str> = dtl_tree::dtl_size_label(1048576i64);
-                let v443: bool = &*v442 == "1024.00 KB";
-                if v443 {
-                    let v444: Rc<str> = dtl_tree::dtl_size_label(1048577i64);
-                    let v445: bool = &*v444 == "1.00 MB";
-                    if v445 {
+        let v319: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("<section class=\"readme\">\n<h1>Title</h1>\n<p>Some <code>code</code> and <a href=\"x.html\">a link</a>.</p>\n<ul>\n<li>one</li>\n<li>two &lt;b&gt;</li>\n</ul>\n<p>봉쥬르 &amp; é <a href=\"k.html\">깃허브</a></p>\n<p>Hi! <img src=\"logo.png\" alt=\"logo\"> <a href=\"ci.html\"><img src=\"b.svg\" alt=\"CI\"></a></p>\n<p><strong>Bold</strong> and <a href=\"https://x.org\">https://x.org</a> and *star*</p>\n<hr>\n<ul>\n<li>top</li>\n<li>nested</li>\n</ul>\n<pre><code>let x = 1 &lt; 2\n</code></pre>\n<table>\n<thead>\n<tr><th style=\"text-align: left\">A</th><th style=\"text-align: right\">B</th></tr>\n</thead>\n<tbody>\n<tr><td style=\"text-align: left\"><code>x</code></td><td style=\"text-align: right\">y | z</td></tr>\n</tbody>\n</table>\n<ol start=\"3\">\n<li>three wrapped</li>\n<li>four</li>\n</ol>\n<ul>\n<li>lazy more</li>\n</ul>\n</section>\n"); } LIT.with(|lit| lit.clone()) };
+        let v320: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("dir-tree-html-readme-got.html"); } LIT.with(|lit| lit.clone()) };
+        let v321: i32 = same_4(v318.clone(), v319.clone(), v320.clone());
+        let v322: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("<p>r</p>\n"); } LIT.with(|lit| lit.clone()) };
+        let v324: Rc<str> = Rc::<str>::from(format!("{}{}", Rc::<str>::from(format!("{}{}", v52, v322)), v54));
+        let v325: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("</div>\n<p>r</p>\n</body>\n</html>\n"); } LIT.with(|lit| lit.clone()) };
+        let v326: Rc<str> = { thread_local!{ static LIT: Rc<str> = Rc::<str>::from("dir-tree-html-close-got.html"); } LIT.with(|lit| lit.clone()) };
+        let v327: i32 = same_4(v324.clone(), v325.clone(), v326.clone());
+        let v328: Rc<str> = dtl_tree::dtl_size_label(1024i64);
+        let v329: bool = &*v328 == "1024.00 B";
+        let v339: i32 = if v329 {
+            let v330: Rc<str> = dtl_tree::dtl_size_label(1025i64);
+            let v331: bool = &*v330 == "1.00 KB";
+            if v331 {
+                let v332: Rc<str> = dtl_tree::dtl_size_label(1048576i64);
+                let v333: bool = &*v332 == "1024.00 KB";
+                if v333 {
+                    let v334: Rc<str> = dtl_tree::dtl_size_label(1048577i64);
+                    let v335: bool = &*v334 == "1.00 MB";
+                    if v335 {
                         0i32
                     } else {
                         1i32
@@ -833,17 +896,23 @@ fn closure0() -> Rc<dyn Fn(i32) -> i32> {
         } else {
             1i32
         };
-        let v450: bool = v91 == 0i32;
-        if v450 {
-            let v451: bool = v94 == 0i32;
-            if v451 {
-                let v452: bool = v262 == 0i32;
-                if v452 {
-                    let v453: bool = v404 == 0i32;
-                    if v453 {
-                        let v454: bool = v437 == 0i32;
-                        if v454 {
-                            v449
+        let v340: bool = v63 == 0i32;
+        if v340 {
+            let v341: bool = v66 == 0i32;
+            if v341 {
+                let v342: bool = v206 == 0i32;
+                if v342 {
+                    let v343: bool = v321 == 0i32;
+                    if v343 {
+                        let v344: bool = v327 == 0i32;
+                        if v344 {
+                            let v345: i32 = viewers_test_10();
+                            let v346: bool = v345 == 0i32;
+                            if v346 {
+                                v339
+                            } else {
+                                6i32
+                            }
                         } else {
                             5i32
                         }
@@ -851,13 +920,13 @@ fn closure0() -> Rc<dyn Fn(i32) -> i32> {
                         4i32
                     }
                 } else {
-                    v262
+                    v206
                 }
             } else {
-                v94
+                v66
             }
         } else {
-            v91
+            v63
         }
     }); } CLOSURE.with(|closure| closure.clone())
 }

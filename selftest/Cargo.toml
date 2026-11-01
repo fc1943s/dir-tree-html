@@ -16,3 +16,4 @@ path = "selftest.rs"
 [dependencies]
 dtl_markdown = { path = "../markdown" }
 dtl_tree = { path = "../tree" }
+dtl_viewer = { path = "../viewer" }

@@ -8,7 +8,7 @@ license-file = "LICENSE"
 repository = "https://github.com/i574n/dir-tree-html"
 
 [workspace]
-members = ["inline", "markdown", "selftest", "tree"]
+members = ["inline", "markdown", "selftest", "tree", "viewer"]
 
 [dependencies]
 dtl_markdown = { path = "markdown" }

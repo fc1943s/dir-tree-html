@@ -32,7 +32,7 @@
     := _ = host_write (host_join (host_join dir "m") "file.txt") "z"
     dir
 
-:= same (got : string) (want : string) (dump : string) : i32 =
+:~ ^ same (got : string) (want : string) (dump : string) : i32 =
     ? got = want ?> 0i32
     |:
         := _ = host_write (host_join (host_temp ()) dump) got
@@ -64,7 +64,8 @@
             (
                 "# Title\n\nSome `code` and [a link](x.html).\n\n- one\n- two <b>\n\n봉쥬르 & é [깃허브](k.html)\n\n"
                 ^^ "Hi! ![logo](logo.png) [![CI](b.svg)](ci.html)\n\n**Bold** and <https://x.org> and \\*star\\*\n\n"
-                ^^ "---\n\n- top\n  - nested\n\n```\nlet x = 1 < 2\n```\n"
+                ^^ "---\n\n- top\n  - nested\n\n```\nlet x = 1 < 2\n```\n\n| A | B |\n| :- | -: |\n| `x` | y \\| z |\n\n"
+                ^^ "3. three\n   wrapped\n4. four\n- lazy\nmore\n"
             )
     dir
 
@@ -73,7 +74,31 @@
     ^^ "<ul>\n<li>one</li>\n<li>two &lt;b&gt;</li>\n</ul>\n<p>봉쥬르 &amp; é <a href=\"k.html\">깃허브</a></p>\n"
     ^^ "<p>Hi! <img src=\"logo.png\" alt=\"logo\"> <a href=\"ci.html\"><img src=\"b.svg\" alt=\"CI\"></a></p>\n"
     ^^ "<p><strong>Bold</strong> and <a href=\"https://x.org\">https://x.org</a> and *star*</p>\n<hr>\n<ul>\n"
-    ^^ "<li>top</li>\n<li>nested</li>\n</ul>\n<pre><code>let x = 1 &lt; 2\n</code></pre>\n</section>\n"
+    ^^ "<li>top</li>\n<li>nested</li>\n</ul>\n<pre><code>let x = 1 &lt; 2\n</code></pre>\n<table>\n<thead>\n"
+    ^^ "<tr><th style=\"text-align: left\">A</th><th style=\"text-align: right\">B</th></tr>\n</thead>\n<tbody>\n"
+    ^^ "<tr><td style=\"text-align: left\"><code>x</code></td><td style=\"text-align: right\">y | z</td></tr>\n"
+    ^^ "</tbody>\n</table>\n<ol start=\"3\">\n<li>three wrapped</li>\n<li>four</li>\n</ol>\n<ul>\n<li>lazy more</li>\n"
+    ^^ "</ul>\n</section>\n"
+
+:= viewer_fixture () : string =
+    := dir = fresh ()
+    := _ = host_mkdir dir
+    := _ = host_write (host_join dir "a.spi") "x < 1"
+    := _ = host_write (host_join dir "b.tsv") "h1\th2\nv1\tv2"
+    := _ = host_write (host_join dir "c.txt") "t"
+    dir
+
+:= viewer_tree_body () : string =
+    "<div>&#128196; <a href=\"a.spi.html\">a.spi</a><span> (5.00 B)</span> <a href=\"a.spi\"><span>raw</span></a></div>"
+    ^^ "<div>&#128196; <a href=\"b.tsv.html\">b.tsv</a><span> (11.00 B)</span> <a href=\"b.tsv\"><span>raw</span></a>"
+    ^^ "</div><div>&#128196; <a href=\"c.txt\">c.txt</a><span> (1.00 B)</span></div>"
+
+:~ ^ viewers_test () : i32 =
+    := dir = viewer_fixture ()
+    := tree_ok = same (tree_html_viewers dir) (viewer_tree_body ()) "dir-tree-html-viewers-got.html"
+    := wrote = write_viewers dir
+    := pages_ok = ? host_is_file (host_join dir "a.spi.html") && host_is_file (host_join dir "b.tsv.html") ?> 0i32 |: 1i32
+    tree_ok + wrote + pages_ok + viewer_crate_self_test ()
 
 := self_test () : i32 =
     := tree = fixture ()
@@ -103,7 +128,8 @@
                 ? readme_ok = 0i32
                 ?>
                     ? close_ok = 0i32
-                    ?> labels_ok
+                    ?>
+                        ? viewers_test () = 0i32 ?> labels_ok |: 6i32
                     |: 5i32
                 |: 4i32
             |: order_ok

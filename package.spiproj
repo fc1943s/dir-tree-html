@@ -9,6 +9,8 @@ modules:
         inline
     markdown/
         markdown
+    viewer/
+        viewer
     tree/
         tree
     selftest/

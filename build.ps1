@@ -13,6 +13,9 @@ if (!(BuildSpiral inline/inline.spi inline/inline.rs "dir-tree-html/inline")) {
 if (!(BuildSpiral markdown/markdown.spi markdown/markdown.rs "dir-tree-html/markdown")) {
     throw "RUST-FAILED dir-tree-html/markdown / compile"
 }
+if (!(BuildSpiral viewer/viewer.spi viewer/viewer.rs "dir-tree-html/viewer")) {
+    throw "RUST-FAILED dir-tree-html/viewer / compile"
+}
 if (!(BuildSpiral tree/tree.spi tree/tree.rs "dir-tree-html/tree")) {
     throw "RUST-FAILED dir-tree-html/tree / compile"
 }

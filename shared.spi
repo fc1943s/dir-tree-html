@@ -105,6 +105,16 @@ inl doc_head () : string = """
 
 := tree_bytes (dir : string) : i64 = $'dtl_tree::dtl_tree_bytes(&*!dir)'
 
+:= tree_html_viewers (dir : string) : string = $'dtl_tree::dtl_tree_html_viewers(&*!dir)'
+
+:= write_viewers (dir : string) : i32 = $'dtl_tree::dtl_write_viewers(&*!dir)'
+
+:= viewer_linked (name : string) : bool = $'dtl_viewer::dtl_has_viewer(&*!name)'
+
+:= write_viewer_file (path : string) : i32 = $'dtl_viewer::dtl_write_viewer(&*!path)'
+
+:= viewer_crate_self_test () : i32 = $'dtl_viewer::dtl_viewer_self_test(0i32)'
+
 := drop_final_newline (text : string) : string =
     := ends = sm'.ends_with "\n" text
     ? ends && (sm.length text : i32) = 1i32 ?> ""

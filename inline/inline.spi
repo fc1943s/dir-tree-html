@@ -49,6 +49,7 @@
     |? ch = (sm.index "-" 0i32) ?> !+
     |? ch = (sm.index "!" 0i32) ?> !+
     |? ch = (sm.index "<" 0i32) ?> !+
+    |? ch = (sm.index "|" 0i32) ?> !+
     |: !-
 
 :~ image_close (text : string) (i : i32) : i32 =

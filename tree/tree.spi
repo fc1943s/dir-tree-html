@@ -76,9 +76,14 @@
     | ChildEnd => ChildEnd
     | Child (is_dir, name, more) => insert is_dir name (sort more)
 
-:= anchor (icon : string) (href : string) (text : string) (size : i64) : string =
+:~ ^ anchor (icon : string) (href : string) (text : string) (size : i64) : string =
     := q = "\""
     icon ++ " <a href=" ++ q ++ href ++ q ++ ">" ++ text ++ "</a><span> (" ++ size_label size ++ ")</span>"
+
+:~ ^ file_link (viewers : bool) (rel : string) (name : string) (size : i64) : string =
+    ? viewers && viewer_linked name
+    ?> anchor "&#128196;" (rel ++ ".html") name size ++ " <a href=\"" ++ rel ++ "\"><span>raw</span></a>"
+    |: anchor "&#128196;" rel name size
 
 :~ ^ folder_bytes (item : entry) : i64 =
     ?= item ?|
@@ -89,16 +94,25 @@
 :+ bytes entry = \ item => folder_bytes item
 :+ bytes root = \ (root items) => bytes items
 
-:~ ^ html_chain (item : entry) : string =
+:~ ^ html_chain (viewers : bool) (item : entry) : string =
     ?= item ?|
     | End => ""
     | File (name, parent, size, next) =>
-        "<div>" ++ anchor "&#128196;" (join_rel parent name) name size ++ "</div>" ++ html_chain next
+        "<div>" ++ file_link viewers (join_rel parent name) name size ++ "</div>" ++ html_chain viewers next
     | Folder (name, rel, children, next) =>
         := q = "\""
-        "<details open=" ++ q ++ "true" ++ q ++ "><summary>" ++ anchor "&#128194;" rel name (bytes children) ++ "</summary><div>" ++ html_chain children ++ "</div></details>" ++ html_chain next
+        := summary = "<summary>" ++ anchor "&#128194;" rel name (bytes children) ++ "</summary>"
+        "<details open=" ++ q ++ "true" ++ q ++ ">" ++ summary ++ "<div>" ++ html_chain viewers children ++ "</div></details>"
+        ++ html_chain viewers next
 
-:+ render entry = \ item => html_chain item
+:~ ^ write_viewers (dir : string) (item : entry) (failed : i32) : i32 =
+    ?= item ?|
+    | End => failed
+    | File (name, parent, _, next) =>
+        write_viewers dir next (failed + write_viewer_file (host_join dir (join_rel parent name)))
+    | Folder (_, _, children, next) => write_viewers dir next (write_viewers dir children failed)
+
+:+ render entry = \ item => html_chain !- item
 :+ render root = \ (root items) => render items
 
 :~ ^ chain (path : string) (rel : string) (items : child) : entry =
@@ -120,5 +134,7 @@
 := main () : i32 =
     export "dtl_tree_html" ((\ dir => render (read_tree dir)) : string -> string)
     export "dtl_tree_bytes" ((\ dir => bytes (read_tree dir)) : string -> i64)
+    export "dtl_tree_html_viewers" ((\ dir => read_tree dir |> (\ (root items) => html_chain !+ items)) : string -> string)
+    export "dtl_write_viewers" ((\ dir => read_tree dir |> (\ (root items) => write_viewers dir items 0i32)) : string -> i32)
     export "dtl_size_label" ((\ n => size_label n) : i64 -> string)
     0i32
