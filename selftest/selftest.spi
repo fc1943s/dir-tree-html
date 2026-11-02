@@ -1,4 +1,5 @@
 :< shared
+:< file_system_operators
 
 := size_label (bytes : i64) : string = $'dtl_tree::dtl_size_label(!bytes)'
 
@@ -8,34 +9,34 @@
 :~ ^ lay (dir : string) (n : i64) : i32 =
     ? n < 0i64 ?> 0i32
     |:
-        := _ = host_mkdir dir
-        := mark = digit n
-        := _ = host_write (host_join dir "file.txt") (times mark (n + 1i64))
-        lay (host_join dir mark) (n - 1i64)
+        := _ = make_dir dir
+        := mark = sm'.decimal_text n
+        := _ = write_text (dir </> "file.txt") (times mark (n + 1i64))
+        lay (dir </> mark) (n - 1i64)
 
 := unique_name () : string =
     guid.new_raw_guid () |> guid.to_string
 
 := fresh () : string =
-    host_join (host_temp ()) (unique_name ())
+    file_system.get_temp_path () </> unique_name ()
 
 := fixture () : string =
     := dir = fresh ()
-    := _ = lay (host_join dir "_.root") 3i64
+    := _ = lay (dir </> "_.root") 3i64
     dir
 
 := order_fixture () : string =
     := dir = fresh ()
-    := _ = host_mkdir (host_join dir "m")
-    := _ = host_write (host_join dir "b.txt") "x"
-    := _ = host_write (host_join dir "a.txt") "yy"
-    := _ = host_write (host_join (host_join dir "m") "file.txt") "z"
+    := _ = make_dir (dir </> "m")
+    := _ = write_text (dir </> "b.txt") "x"
+    := _ = write_text (dir </> "a.txt") "yy"
+    := _ = write_text (dir </> "m" </> "file.txt") "z"
     dir
 
 :~ ^ same (got : string) (want : string) (dump : string) : i32 =
     ? got = want ?> 0i32
     |:
-        := _ = host_write (host_join (host_temp ()) dump) got
+        := _ = write_text (file_system.get_temp_path () </> dump) got
         1i32
 
 := fixture_body () : string =
@@ -57,10 +58,10 @@
 
 := readme_fixture () : string =
     := dir = fresh ()
-    := _ = host_mkdir dir
+    := _ = make_dir dir
     := _ =
-        host_write
-            (host_join dir "README.md")
+        write_text
+            (dir </> "README.md")
             (
                 "# Title\n\nSome `code` and [a link](x.html).\n\n- one\n- two <b>\n\n봉쥬르 & é [깃허브](k.html)\n\n"
                 ^^ "Hi! ![logo](logo.png) [![CI](b.svg)](ci.html)\n\n**Bold** and <https://x.org> and \\*star\\*\n\n"
@@ -82,10 +83,10 @@
 
 := viewer_fixture () : string =
     := dir = fresh ()
-    := _ = host_mkdir dir
-    := _ = host_write (host_join dir "a.spi") "x < 1"
-    := _ = host_write (host_join dir "b.tsv") "h1\th2\nv1\tv2"
-    := _ = host_write (host_join dir "c.txt") "t"
+    := _ = make_dir dir
+    := _ = write_text (dir </> "a.spi") "x < 1"
+    := _ = write_text (dir </> "b.tsv") "h1\th2\nv1\tv2"
+    := _ = write_text (dir </> "c.txt") "t"
     dir
 
 := viewer_tree_body () : string =
@@ -97,7 +98,7 @@
     := dir = viewer_fixture ()
     := tree_ok = same (tree_html_viewers dir) (viewer_tree_body ()) "dir-tree-html-viewers-got.html"
     := wrote = write_viewers dir
-    := pages_ok = ? host_is_file (host_join dir "a.spi.html") && host_is_file (host_join dir "b.tsv.html") ?> 0i32 |: 1i32
+    := pages_ok = ? file_system.file_exists (dir </> "a.spi.html") && file_system.file_exists (dir </> "b.tsv.html") ?> 0i32 |: 1i32
     tree_ok + wrote + pages_ok + viewer_crate_self_test ()
 
 := self_test () : i32 =

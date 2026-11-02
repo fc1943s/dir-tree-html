@@ -1,4 +1,5 @@
 :< shared
+:< file_system_operators
 
 :| ^ entry =
     | End
@@ -15,7 +16,7 @@
 :? render node : node -> string
 
 := child_of (path : string) (rest : child) (name : string) : child =
-    := child_path = host_join path name
+    := child_path = path </> name
     ? file_system.rust_is_symlink child_path ?> rest
     |? file_system.directory_exists child_path ?> Child (1i32, name, rest)
     |? file_system.file_exists child_path ?> Child (0i32, name, rest)
@@ -27,11 +28,11 @@
     | Error _ => ChildEnd
 
 := pad2 (n : i64) : string =
-    := text = show_i64 n
+    := text = sm'.decimal_text n
     ? n < 10i64 ?> "0" ++ text |: text
 
 := show_hundredths (n : i64) : string =
-    show_i64 (n / 100i64) ++ "." ++ pad2 (n % 100i64)
+    sm'.decimal_text (n / 100i64) ++ "." ++ pad2 (n % 100i64)
 
 := scaled (bytes : i64) (scale : i64) : i64 =
     (bytes * 100i64 + (scale / 2i64)) / scale
@@ -109,7 +110,7 @@
     ?= item ?|
     | End => failed
     | File (name, parent, _, next) =>
-        write_viewers dir next (failed + write_viewer_file (host_join dir (join_rel parent name)))
+        write_viewers dir next (failed + write_viewer_file (dir </> join_rel parent name))
     | Folder (_, _, children, next) => write_viewers dir next (write_viewers dir children failed)
 
 :+ render entry = \ item => html_chain !- item
@@ -121,12 +122,12 @@
     | Child (is_dir, name, more) =>
         := next = chain path rel more
         ? is_dir = 1i32 ?>
-            := child_path = host_join path name
+            := child_path = path </> name
             := child_rel = join_rel rel name
             := nested = chain child_path child_rel (sort (listing child_path))
             Folder (name, child_rel, nested, next)
         |:
-            File (name, rel, file_system.rust_file_length (host_join path name), next)
+            File (name, rel, file_system.rust_file_length (path </> name), next)
 
 := read_tree (dir : string) : root =
     root (chain dir "" (sort (listing dir)))

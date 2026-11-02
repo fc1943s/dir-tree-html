@@ -11,8 +11,8 @@
         ?>
             := html = doc_head () ++ tree_html_viewers options.dir ++ doc_close (readme_html options.dir)
             := failed = write_viewers options.dir
-            ? failed = 0i32 ?> host_write options.html html |: 1i32
-        |: host_write options.html (page options.dir (readme_html options.dir))
+            ? failed = 0i32 ?> write_text options.html html |: 1i32
+        |: write_text options.html (page options.dir (readme_html options.dir))
     | Error error =>
         console.write_error_line (cli_args.cli_error_text error)
         2i32

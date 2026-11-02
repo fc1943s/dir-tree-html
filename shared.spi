@@ -1,29 +1,7 @@
 :< sm'_operators
+:< file_system_operators
 
 := (++) (left : string) (right : string) : string = left ++# right
-:= (~!\\) \* t u. ((args : t), (code : string)) : u =
-    $'__spiral_emit_rust !args !code '
-
-:= host_join (left : string) (right : string) : string =
-    !\\((left, right), $'"Rc::<str>::from(std::path::Path::new($0.as_ref()).join($1.as_ref()).display().to_string())"')
-
-:= digit (n : i64) : string =
-    ? n = 0i64 ?> "0"
-    |? n = 1i64 ?> "1"
-    |? n = 2i64 ?> "2"
-    |? n = 3i64 ?> "3"
-    |? n = 4i64 ?> "4"
-    |? n = 5i64 ?> "5"
-    |? n = 6i64 ?> "6"
-    |? n = 7i64 ?> "7"
-    |? n = 8i64 ?> "8"
-    |? n = 9i64 ?> "9"
-    |: "0"
-
-:~ ^ show_i64 (n : i64) : string =
-    := ch = digit (n % 10i64)
-    := rest = n / 10i64
-    ? rest = 0i64 ?> ch |: show_i64 rest ++ ch
 
 :~ ^ find_nl (text : string) (at : i32) : i32 =
     ? at = (sm.length text : i32) ?> at
@@ -129,21 +107,9 @@ inl doc_head () : string = """
         | Error _ => ""
         | Ok text => text |> sm'.from_std_string |> sm'.replace "\r\n" "\n" |> drop_final_newline
 
-:= host_is_file (path : string) : bool =
-    !\\(path, $'"std::path::Path::new($0.as_ref()).is_file()"')
-
-:= host_write_file (path : string) (text : string) : i32 =
-    !\\((path, text), $'"i32::from(std::fs::write($0.as_ref(), $1.as_ref().as_bytes()).is_err())"')
-
-:= host_mkdir (path : string) : i32 =
-    !\\(path, $'"i32::from(std::fs::create_dir_all($0.as_ref()).is_err())"')
-
-:= host_temp () : string =
-    !\\((), $'"Rc::<str>::from(std::env::temp_dir().display().to_string())"')
-
 := readme_html (dir : string) : string =
-    := path = host_join dir "README.md"
-    ? host_is_file path
+    := path = dir </> "README.md"
+    ? file_system.file_exists path
     ?> "<section class=\"readme\">\n" ++ markdown (read_lines_text path) ++ "</section>\n"
     |: ""
 
@@ -168,7 +134,16 @@ inl doc_head () : string = """
             sm.slice path { from = 0i32; to = sep }
         |: parent
 
-:= host_write (path : string) (text : string) : i32 =
+:= make_dir (path : string) : i32 =
+    ?= file_system.create_dir_all path |> resultm.unbox ?|
+    | Ok _ => 0i32
+    | Error _ => 1i32
+
+:= write_text (path : string) (text : string) : i32 =
     := parent = parent_text path
-    := made = ? (sm.length parent : i32) = 0i32 ?> 0i32 |: host_mkdir parent
-    ? made = 0i32 ?> host_write_file path text |: made
+    := made = ? (sm.length parent : i32) = 0i32 ?> 0i32 |: make_dir parent
+    ? made <> 0i32 ?> made
+    |:
+        ?= file_system.try_write_all_text path text ?|
+        | Ok _ => 0i32
+        | Error _ => 1i32
